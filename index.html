@@ -1,0 +1,2551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT Helpdesk — ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #eef2ff;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #4f46e5;
+      --blue: #2563eb;
+      --cyan: #06b6d4;
+      --purple: #7c3aed;
+      --danger: #ef4444;
+      --grad: linear-gradient(135deg, #2563eb 0%, #4f46e5 48%, #7c3aed 100%);
+      --grad-soft: linear-gradient(135deg, rgba(37,99,235,.10), rgba(124,58,237,.10));
+      --sidebar-w: 262px;
+      --radius: 18px;
+      --shadow: 0 12px 32px -14px rgba(30, 41, 99, .28);
+      --shadow-sm: 0 4px 14px -6px rgba(30, 41, 99, .18);
+    }
+    * { -webkit-tap-highlight-color: transparent; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Prompt', 'Sarabun', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 100% -10%, rgba(124,58,237,.12), transparent 60%),
+        radial-gradient(900px 500px at -10% 10%, rgba(6,182,212,.12), transparent 60%),
+        var(--bg);
+      background-attachment: fixed;
+      font-weight: 400;
+    }
+    a { cursor: pointer; }
+    .text-muted { color: var(--muted) !important; }
+    .fw-medium { font-weight: 500; }
+
+    /* ---------- Loading ---------- */
+    #loadingOverlay {
+      position: fixed; inset: 0; z-index: 3000; display: none; align-items: center; justify-content: center;
+      background: rgba(15, 23, 42, .45); backdrop-filter: blur(3px);
+    }
+    #loadingOverlay.show { display: flex; }
+    .loader-card { background: #fff; border-radius: 20px; padding: 26px 34px; text-align: center; box-shadow: var(--shadow); min-width: 220px; }
+    .spinner-ring { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px; border: 5px solid #e0e7ff; border-top-color: var(--primary); border-right-color: var(--purple); animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .inline-loader { text-align: center; padding: 34px 10px; color: var(--muted); }
+    .inline-loader .spinner-ring { width: 38px; height: 38px; border-width: 4px; }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar {
+      position: fixed; top: 0; bottom: 0; left: 0; width: var(--sidebar-w); z-index: 1045;
+      background: linear-gradient(185deg, #0b1437 0%, #1e1b4b 60%, #2e1065 100%);
+      color: #c7d2fe; display: flex; flex-direction: column; transition: transform .3s ease;
+      box-shadow: 8px 0 30px -18px rgba(0,0,0,.5);
+    }
+    .sb-brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .logo-lg { width: 46px; height: 46px; border-radius: 14px; background: var(--grad); display: grid; place-items: center; color: #fff; font-size: 1.3rem; box-shadow: 0 8px 20px -6px rgba(79,70,229,.8); flex-shrink: 0; }
+    .sb-brand .name { color: #fff; font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
+    .sb-brand small { color: #a5b4fc; font-size: .75rem; display: block; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-nav { padding: 14px 12px; flex: 1; overflow-y: auto; }
+    .sb-label { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #818cf8; padding: 10px 12px 6px; }
+    .sb-nav a {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px; margin-bottom: 4px; border-radius: 12px;
+      color: #c7d2fe; text-decoration: none; font-weight: 400; transition: all .2s; position: relative; min-height: 46px;
+    }
+    .sb-nav a .emo { width: 24px; text-align: center; font-size: 1.05rem; }
+    .sb-nav a:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .sb-nav a.active { background: linear-gradient(90deg, rgba(99,102,241,.55), rgba(139,92,246,.25)); color: #fff; font-weight: 500; box-shadow: inset 3px 0 0 #a5b4fc; }
+    .sb-nav a .lock { margin-left: auto; font-size: .75rem; opacity: .6; }
+    .sb-footer { padding: 16px 20px; font-size: .78rem; color: #a5b4fc; border-top: 1px solid rgba(255,255,255,.08); }
+    .sb-footer .slogan { color: #e0e7ff; font-weight: 500; }
+    .sidebar-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 1040; display: none; }
+    .sidebar-backdrop.show { display: block; }
+
+    /* ---------- Main / Topbar ---------- */
+    .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      position: sticky; top: 0; z-index: 1030; display: flex; align-items: center; gap: 12px; padding: 12px 24px;
+      background: rgba(255,255,255,.82); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(226,232,240,.8);
+    }
+    .btn-icon { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: #fff; display: grid; place-items: center; color: var(--primary); }
+    .brand-mini { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mini .logo { width: 42px; height: 42px; border-radius: 12px; background: var(--grad); color: #fff; display: grid; place-items: center; font-size: 1.15rem; flex-shrink: 0; }
+    .brand-mini .t1 { font-weight: 600; font-size: 1.02rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-mini .t2 { font-size: .74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .online-pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px; font-size: .8rem; font-weight: 500; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; white-space: nowrap; }
+    .online-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 0 rgba(16,185,129,.7); animation: ping 1.8s infinite; }
+    .online-pill.off { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .online-pill.off .dot { background: #ef4444; animation: none; }
+    @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.6); } 70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+    .user-chip { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 4px; border-radius: 999px; background: #fff; border: 1px solid var(--border); cursor: pointer; min-height: 44px; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--grad); color: #fff; display: grid; place-items: center; font-weight: 600; flex-shrink: 0; }
+    .user-chip .nm { font-size: .85rem; font-weight: 500; line-height: 1.1; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-chip .rl { font-size: .7rem; color: var(--muted); }
+    .content { padding: 24px; flex: 1; width: 100%; max-width: 1480px; margin: 0 auto; }
+
+    /* ---------- Common UI ---------- */
+    .page { display: none; animation: fadeUp .35s ease; }
+    .page.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .page-head h2 { font-size: 1.45rem; font-weight: 600; margin: 0; }
+    .page-head p { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
+    .cardx { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(226,232,240,.7); padding: 20px; }
+    .cardx + .cardx { margin-top: 18px; }
+    .cardx-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.02rem; margin-bottom: 14px; }
+    .cardx-title .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--grad-soft); color: var(--primary); }
+    .cardx-title .sub { font-weight: 400; color: var(--muted); font-size: .82rem; }
+    .btn { border-radius: 12px; font-weight: 500; min-height: 42px; }
+    .btn-sm { min-height: 34px; border-radius: 10px; }
+    .btn-grad { background: var(--grad); color: #fff; border: none; box-shadow: 0 8px 20px -8px rgba(79,70,229,.8); }
+    .btn-grad:hover, .btn-grad:focus { color: #fff; filter: brightness(1.08); }
+    .btn-grad:disabled { opacity: .7; color: #fff; }
+    .btn-soft { background: #eef2ff; color: var(--primary); border: 1px solid #e0e7ff; }
+    .btn-soft:hover { background: #e0e7ff; color: #3730a3; }
+    .form-control, .form-select { border-radius: 12px; min-height: 44px; border-color: #dbe2ee; }
+    .form-control:focus, .form-select:focus { border-color: #a5b4fc; box-shadow: 0 0 0 .22rem rgba(99,102,241,.15); }
+    textarea.form-control { min-height: 96px; }
+    .form-label { font-weight: 500; font-size: .9rem; margin-bottom: 6px; }
+    .req::after { content: ' *'; color: var(--danger); }
+    .badge-soft { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: .78rem; font-weight: 500; white-space: nowrap; }
+    .pulse-red { animation: pulseRed 1.6s infinite; }
+    @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,.5); } 70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+    .badge-urgent { display: inline-block; background: #ef4444; color: #fff; font-size: .68rem; padding: 2px 8px; border-radius: 999px; margin-left: 6px; font-weight: 600; vertical-align: middle; }
+    .type-chip { display: inline-flex; align-items: center; gap: 5px; font-size: .75rem; color: #4338ca; background: #eef2ff; border-radius: 8px; padding: 2px 8px; }
+    .tid { font-family: 'Prompt', monospace; font-weight: 600; color: var(--primary); letter-spacing: .02em; text-decoration: none; white-space: nowrap; }
+    .empty { text-align: center; padding: 40px 16px; color: var(--muted); }
+    .empty i { font-size: 2.4rem; color: #c7d2fe; margin-bottom: 10px; display: block; }
+    .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .kv .item { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 14px; padding: 10px 14px; }
+    .kv .k { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .kv .v { font-weight: 500; word-break: break-word; }
+    .pre { white-space: pre-wrap; word-break: break-word; }
+    .section-label { font-size: .8rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: .05em; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #e0e7ff; }
+
+    /* ---------- Dashboard ---------- */
+    .hero { background: var(--grad); color: #fff; border-radius: 22px; padding: 26px 28px; position: relative; overflow: hidden; box-shadow: 0 20px 40px -20px rgba(79,70,229,.8); margin-bottom: 20px; }
+    .hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.08); }
+    .hero::before { width: 320px; height: 320px; right: -90px; top: -140px; }
+    .hero::after { width: 200px; height: 200px; right: 140px; bottom: -120px; }
+    .hero h1 { font-size: 1.6rem; font-weight: 600; margin: 0 0 4px; position: relative; }
+    .hero .slogan { opacity: .9; position: relative; }
+    .hero .clock { font-size: 1.9rem; font-weight: 600; letter-spacing: .02em; position: relative; }
+    .hero .date { opacity: .85; font-size: .9rem; position: relative; }
+    .hero .btn { position: relative; }
+    .btn-glass { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); }
+    .btn-glass:hover { background: rgba(255,255,255,.28); color: #fff; }
+    .btn-white { background: #fff; color: var(--primary); border: none; }
+    .btn-white:hover { background: #eef2ff; color: #3730a3; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat { background: #fff; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid rgba(226,232,240,.8); display: flex; gap: 14px; align-items: center; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+    .stat.clickable { cursor: pointer; }
+    .stat.clickable:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .stat .ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; color: #fff; font-size: 1.3rem; flex-shrink: 0; }
+    .stat .val { font-size: 1.7rem; font-weight: 600; line-height: 1.1; }
+    .stat .val.small-val { font-size: 1.02rem; line-height: 1.3; }
+    .stat .lbl { font-size: .84rem; color: var(--muted); }
+    .stat.urgent-on { border-color: #fecaca; background: linear-gradient(135deg, #fff, #fef2f2); }
+    .stat.urgent-on .ic { animation: pulseRed 1.6s infinite; }
+    .g-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .g-amber { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .g-purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+    .g-green { background: linear-gradient(135deg, #34d399, #059669); }
+    .g-slate { background: linear-gradient(135deg, #64748b, #334155); }
+    .g-red { background: linear-gradient(135deg, #f87171, #dc2626); }
+    .g-cyan { background: linear-gradient(135deg, #22d3ee, #0891b2); }
+    .g-indigo { background: linear-gradient(135deg, #818cf8, #4f46e5); }
+    .g-pink { background: linear-gradient(135deg, #f472b6, #db2777); }
+    .urgent-panel { border: 1px solid #fecaca; background: linear-gradient(135deg, #fff5f5, #fff); }
+    .urgent-item { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px solid #fee2e2; margin-bottom: 8px; cursor: pointer; }
+    .urgent-item:hover { border-color: #fca5a5; }
+    .chart-box { position: relative; height: 280px; }
+    .chart-box.tall { height: 320px; }
+    .chart-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--muted); flex-direction: column; gap: 6px; }
+    .chart-empty.show { display: flex; }
+    .rank-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #e2e8f0; }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-no { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-weight: 600; font-size: .85rem; background: #eef2ff; color: var(--primary); flex-shrink: 0; }
+    .rank-no.top { background: var(--grad); color: #fff; }
+    .rank-bar { height: 6px; border-radius: 4px; background: #eef2ff; overflow: hidden; margin-top: 4px; }
+    .rank-bar span { display: block; height: 100%; background: var(--grad); border-radius: 4px; }
+    .recent-item { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    .recent-item:hover { background: #f8fafc; }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-item .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #eef2ff; color: var(--primary); flex-shrink: 0; }
+
+    /* ---------- Report form ---------- */
+    .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+    .opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .opt label { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; min-height: 86px; padding: 10px 6px; border-radius: 14px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; font-size: .84rem; transition: all .15s; height: 100%; }
+    .opt label i { font-size: 1.35rem; color: #6366f1; }
+    .opt label:hover { border-color: #c7d2fe; background: #f8faff; }
+    .opt input:checked + label { border-color: var(--primary); background: linear-gradient(135deg, #eef2ff, #f5f3ff); box-shadow: 0 0 0 3px rgba(99,102,241,.18); font-weight: 500; }
+    .opt input:focus-visible + label { outline: 2px solid var(--primary); }
+    .prio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .prio-grid .opt label { min-height: 74px; }
+    .prio-grid .opt label .em { font-size: 1.4rem; }
+    .prio-grid .opt input:checked + label { border-color: var(--pc); background: var(--pbg); box-shadow: 0 0 0 3px var(--pbg); }
+    .group-invalid .type-grid, .group-invalid .prio-grid { outline: 2px dashed #fca5a5; outline-offset: 6px; border-radius: 12px; }
+    .group-invalid .invalid-msg { display: block; }
+    .invalid-msg { display: none; color: var(--danger); font-size: .85rem; margin-top: 10px; }
+    .dropzone { border: 2px dashed #c7d2fe; border-radius: 16px; padding: 22px 14px; text-align: center; background: #f8faff; cursor: pointer; transition: all .2s; }
+    .dropzone.drag { border-color: var(--primary); background: #eef2ff; }
+    .dropzone i.big { font-size: 2rem; color: #818cf8; }
+    .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
+    .file-card { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .72rem; text-align: center; padding: 6px; }
+    .file-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .file-card .fi { font-size: 1.8rem; color: #6366f1; margin-bottom: 6px; }
+    .file-card .fname { word-break: break-all; line-height: 1.2; max-height: 2.4em; overflow: hidden; }
+    .file-card .rm { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(15,23,42,.7); color: #fff; z-index: 2; }
+    .file-card .sz { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15,23,42,.6); color: #fff; font-size: .68rem; padding: 2px; z-index: 1; }
+    .sticky-submit { position: sticky; bottom: 0; background: linear-gradient(180deg, rgba(238,242,255,0), var(--bg) 35%); padding: 16px 0 6px; z-index: 5; }
+    .hp-field { position: absolute; left: -5000px; width: 1px; height: 1px; overflow: hidden; }
+
+    /* ---------- Track / Timeline ---------- */
+    .track-search { display: flex; gap: 10px; }
+    .track-search .form-control { font-size: 1.1rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; min-height: 52px; }
+    .track-search .btn { min-height: 52px; padding: 0 22px; }
+    .ticket-head { background: var(--grad); color: #fff; border-radius: var(--radius); padding: 22px; position: relative; overflow: hidden; }
+    .ticket-head::after { content: ''; position: absolute; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.08); right: -70px; top: -110px; }
+    .ticket-head .id { font-size: 1.5rem; font-weight: 600; letter-spacing: .03em; }
+    .ticket-head .badge-soft { background: rgba(255,255,255,.95) !important; }
+    .stepper { display: flex; justify-content: space-between; position: relative; margin: 22px 4px 6px; }
+    .stepper::before { content: ''; position: absolute; top: 19px; left: 8%; right: 8%; height: 4px; background: #e2e8f0; border-radius: 4px; }
+    .stepper .bar { position: absolute; top: 19px; left: 8%; height: 4px; background: var(--grad); border-radius: 4px; transition: width .6s; }
+    .step { position: relative; z-index: 1; text-align: center; flex: 1; font-size: .78rem; color: var(--muted); }
+    .step .dot { width: 42px; height: 42px; margin: 0 auto 6px; border-radius: 50%; background: #fff; border: 3px solid #e2e8f0; display: grid; place-items: center; color: #94a3b8; }
+    .step.done .dot { background: var(--grad); border-color: #fff; color: #fff; box-shadow: 0 6px 14px -6px rgba(79,70,229,.8); }
+    .step.done { color: var(--text); font-weight: 500; }
+    .step.current .dot { box-shadow: 0 0 0 5px rgba(99,102,241,.25); }
+    .timeline { position: relative; padding: 4px 0; }
+    .tl-item { display: grid; grid-template-columns: 74px 34px 1fr; gap: 12px; position: relative; padding-bottom: 18px; }
+    .tl-item::before { content: ''; position: absolute; left: 102px; top: 34px; bottom: 0; width: 2px; background: #e2e8f0; }
+    .tl-item:last-child::before { display: none; }
+    .tl-time { text-align: right; line-height: 1.2; padding-top: 4px; }
+    .tl-time b { font-size: 1rem; font-weight: 600; display: block; }
+    .tl-time small { color: var(--muted); font-size: .7rem; }
+    .tl-dot { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--c, #6366f1); box-shadow: 0 0 0 4px rgba(255,255,255,1), 0 6px 14px -6px var(--c, #6366f1); font-size: .85rem; }
+    .tl-body { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 14px; padding: 10px 14px; }
+    .tl-title { font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .tl-meta { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .tl-note { margin-top: 6px; font-size: .88rem; white-space: pre-wrap; word-break: break-word; }
+    .stars { display: inline-flex; gap: 6px; }
+    .stars button { border: none; background: none; font-size: 2.1rem; color: #cbd5e1; padding: 0 2px; line-height: 1; transition: transform .1s; }
+    .stars button.on { color: #f59e0b; }
+    .stars button:hover { transform: scale(1.12); }
+    .stars-ro { color: #f59e0b; letter-spacing: 2px; font-size: 1.15rem; }
+    .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .att { display: block; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; aspect-ratio: 1; background: #f1f5f9 center/cover no-repeat; position: relative; }
+    .att span { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15,23,42,.6); color: #fff; font-size: .72rem; padding: 3px 6px; text-align: center; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip-btn { border: 1px solid #e0e7ff; background: #fff; border-radius: 999px; padding: 6px 12px; font-size: .82rem; color: #3730a3; min-height: 36px; }
+    .chip-btn:hover { background: #eef2ff; }
+
+    /* ---------- Tickets list / table ---------- */
+    .status-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; scrollbar-width: thin; }
+    .status-tabs button { flex-shrink: 0; border: 1px solid #e2e8f0; background: #fff; border-radius: 999px; padding: 7px 14px; font-size: .84rem; display: inline-flex; gap: 8px; align-items: center; min-height: 40px; color: #334155; }
+    .status-tabs button .n { background: #f1f5f9; border-radius: 999px; padding: 0 8px; font-size: .75rem; font-weight: 600; }
+    .status-tabs button.active { background: var(--grad); color: #fff; border-color: transparent; }
+    .status-tabs button.active .n { background: rgba(255,255,255,.25); color: #fff; }
+    .filter-panel .form-control, .filter-panel .form-select { min-height: 42px; font-size: .9rem; }
+    .tk-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .tk-table thead th { font-size: .78rem; color: var(--muted); font-weight: 500; padding: 6px 12px; white-space: nowrap; }
+    .tk-table tbody tr { background: #fff; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .15s; }
+    .tk-table tbody tr:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .tk-table td { padding: 12px; vertical-align: middle; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
+    .tk-table td:first-child { border-left: 1px solid #f1f5f9; border-radius: 14px 0 0 14px; }
+    .tk-table td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 14px 14px 0; }
+    .tk-table tr.row-urgent td:first-child { box-shadow: inset 4px 0 0 #ef4444; }
+    .tk-table tr.row-urgent { background: linear-gradient(90deg, #fff5f5, #fff 40%); }
+    .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+    .pager .pages { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pager .pages button { min-width: 40px; height: 40px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; font-weight: 500; }
+    .pager .pages button.active { background: var(--grad); color: #fff; border-color: transparent; }
+    .pager .pages button:disabled { opacity: .45; }
+    .my-card { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: #fff; margin-bottom: 10px; cursor: pointer; transition: all .15s; }
+    .my-card:hover { border-color: #c7d2fe; box-shadow: var(--shadow-sm); }
+    .my-card .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--grad-soft); color: var(--primary); font-size: 1.2rem; flex-shrink: 0; }
+
+    /* ---------- Modal ---------- */
+    .modal-content { border: none; border-radius: 22px; overflow: hidden; }
+    .tm-head { background: var(--grad); color: #fff; padding: 18px 22px; }
+    .tm-head .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+    .tm-head .badge-soft { background: rgba(255,255,255,.95) !important; }
+    .nav-pills-x { display: flex; gap: 6px; overflow-x: auto; padding: 12px 18px 0; border-bottom: 1px solid #eef2f7; background: #fff; position: sticky; top: 0; z-index: 3; scrollbar-width: thin; }
+    .nav-pills-x button { border: none; background: none; padding: 10px 14px; border-bottom: 3px solid transparent; color: var(--muted); font-weight: 500; white-space: nowrap; font-size: .9rem; min-height: 44px; }
+    .nav-pills-x button.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tm-pane { display: none; padding: 18px 22px 24px; }
+    .tm-pane.active { display: block; }
+    .action-card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; background: #fcfdff; height: 100%; }
+    .action-card h6 { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .log-item { border-left: 3px solid #818cf8; background: #f8fafc; border-radius: 0 12px 12px 0; padding: 10px 14px; margin-bottom: 10px; }
+
+    /* ---------- Settings ---------- */
+    .set-status { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f7; }
+    .set-status .ok { color: #059669; }
+    .set-status .no { color: #dc2626; }
+    .user-row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid #f1f5f9; }
+    .user-row:last-child { border-bottom: none; }
+    .role-badge { font-size: .72rem; padding: 3px 9px; border-radius: 999px; font-weight: 500; }
+    .role-Admin { background: #ede9fe; color: #6d28d9; }
+    .role-ITStaff { background: #dbeafe; color: #1d4ed8; }
+    .role-User { background: #f1f5f9; color: #475569; }
+
+    /* ---------- Bottom nav (mobile) ---------- */
+    .bottom-nav { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1035; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); border-top: 1px solid #e2e8f0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); justify-content: space-around; }
+    .bottom-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: .68rem; color: var(--muted); text-decoration: none; padding: 6px 2px; border-radius: 12px; min-height: 52px; justify-content: center; }
+    .bottom-nav a i { font-size: 1.15rem; }
+    .bottom-nav a.active { color: var(--primary); font-weight: 500; }
+    .bottom-nav a.center i { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: var(--grad); color: #fff; margin-top: -24px; box-shadow: 0 10px 20px -8px rgba(79,70,229,.9); font-size: 1.25rem; }
+
+    /* ---------- SweetAlert tweaks ---------- */
+    .swal2-popup { border-radius: 22px !important; font-family: 'Prompt', sans-serif !important; }
+    .swal2-styled.swal2-confirm { background: var(--grad) !important; border-radius: 12px !important; }
+    .swal2-styled.swal2-cancel { border-radius: 12px !important; }
+    .swal-ticket .big-id { font-size: 1.7rem; font-weight: 700; color: var(--primary); letter-spacing: .04em; margin: 4px 0 8px; }
+    .swal-table { width: 100%; text-align: left; font-size: .92rem; margin: 12px 0; }
+    .swal-table td { padding: 6px 4px; border-bottom: 1px dashed #e2e8f0; }
+    .swal-table td:first-child { color: var(--muted); width: 38%; }
+    .swal-note { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 12px; padding: 10px; font-size: .88rem; }
+    .swal-form label { display: block; text-align: left; font-size: .85rem; font-weight: 500; margin: 10px 0 4px; }
+    .swal-form .form-control, .swal-form .form-select { font-size: .95rem; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 991.98px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: none; }
+      .main { margin-left: 0; }
+      .content { padding: 16px 14px 100px; }
+      .bottom-nav { display: flex; }
+      .sticky-submit { bottom: calc(66px + env(safe-area-inset-bottom)); }
+      .topbar { padding: 10px 14px; }
+      .brand-mini .t2 { display: none; }
+    }
+    @media (max-width: 767.98px) {
+      .hero { padding: 20px; }
+      .hero h1 { font-size: 1.25rem; }
+      .hero .clock { font-size: 1.5rem; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat { padding: 14px; gap: 10px; flex-direction: column; align-items: flex-start; }
+      .stat .ic { width: 42px; height: 42px; font-size: 1.05rem; border-radius: 12px; }
+      .stat .val { font-size: 1.4rem; }
+      .prio-grid { grid-template-columns: repeat(2, 1fr); }
+      .type-grid { grid-template-columns: repeat(3, 1fr); }
+      .cardx { padding: 16px; border-radius: 16px; }
+      .tk-table thead { display: none; }
+      .tk-table, .tk-table tbody, .tk-table tr, .tk-table td { display: block; width: 100%; }
+      .tk-table { border-spacing: 0; }
+      .tk-table tbody tr { margin-bottom: 12px; border-radius: 16px; border: 1px solid #eef2f7; padding: 6px 4px; }
+      .tk-table td { border: none !important; border-radius: 0 !important; padding: 6px 12px; display: flex; gap: 10px; justify-content: space-between; align-items: flex-start; text-align: right; }
+      .tk-table td::before { content: attr(data-label); color: var(--muted); font-size: .78rem; text-align: left; flex-shrink: 0; padding-top: 2px; }
+      .tk-table td > div, .tk-table td > span { text-align: right; }
+      .tk-table td.td-first { display: block; text-align: left; border-bottom: 1px dashed #e2e8f0 !important; padding-bottom: 10px; }
+      .tk-table td.td-first::before { display: none; }
+      .tk-table td.td-action { justify-content: stretch; }
+      .tk-table td.td-action::before { display: none; }
+      .tk-table td.td-action .btn { width: 100%; }
+      .tk-table tr.row-urgent td:first-child { box-shadow: none; }
+      .tk-table tr.row-urgent { border-left: 4px solid #ef4444; }
+      .tl-item { grid-template-columns: 54px 30px 1fr; gap: 8px; }
+      .tl-item::before { left: 76px; }
+      .tl-dot { width: 30px; height: 30px; }
+      .tl-time b { font-size: .9rem; }
+      .step { font-size: .66rem; }
+      .step .dot { width: 34px; height: 34px; font-size: .8rem; }
+      .stepper::before, .stepper .bar { top: 15px; }
+      .tm-pane { padding: 16px; }
+      .track-search { flex-direction: column; }
+      .online-pill .txt { display: none; }
+      .user-chip .meta { display: none; }
+      .user-chip { padding: 4px; }
+      .btn { min-height: 46px; }
+      .form-control, .form-select { min-height: 48px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" aria-live="polite">
+  <div class="loader-card">
+    <div class="spinner-ring"></div>
+    <div id="loadingText" class="fw-medium">กำลังโหลด...</div>
+    <small class="text-muted">กรุณารอสักครู่</small>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="logo-lg"><i class="fa-solid fa-headset"></i></div>
+    <div>
+      <div class="name">IT Helpdesk</div>
+      <small data-org>ระบบแจ้งปัญหา IT</small>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">เมนูหลัก</div>
+    <a data-nav="dashboard"><span class="emo">🏠</span><span>Dashboard</span></a>
+    <a data-nav="report"><span class="emo">📝</span><span>แจ้งปัญหา</span></a>
+    <a data-nav="mytickets"><span class="emo">🎫</span><span>Ticket ของฉัน</span></a>
+    <a data-nav="track"><span class="emo">🔎</span><span>ติดตาม Ticket</span></a>
+    <div class="sb-label">สำหรับเจ้าหน้าที่</div>
+    <a data-nav="work"><span class="emo">🛠️</span><span>งาน IT</span><i class="fa-solid fa-lock lock" data-lock></i></a>
+    <a data-nav="reports"><span class="emo">📊</span><span>รายงาน</span><i class="fa-solid fa-lock lock" data-lock></i></a>
+    <a data-nav="settings"><span class="emo">⚙️</span><span>ตั้งค่า</span></a>
+  </nav>
+  <div class="sb-footer">
+    <div class="slogan">“แจ้งง่าย ติดตามได้ แก้ไขไว ตรวจสอบได้”</div>
+    <div class="mt-1">IT Helpdesk &amp; Computer Problem Reporting System</div>
+  </div>
+</aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="main">
+  <!-- Header -->
+  <header class="topbar">
+    <button class="btn-icon d-lg-none" id="btnMenu" type="button" aria-label="เมนู"><i class="fa-solid fa-bars"></i></button>
+    <div class="brand-mini">
+      <div class="logo"><i class="fa-solid fa-computer"></i></div>
+      <div class="min-w-0" style="min-width:0">
+        <div class="t1">ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</div>
+        <div class="t2">IT Helpdesk &amp; Computer Problem Reporting System</div>
+      </div>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="online-pill" id="onlinePill" title="สถานะระบบ"><span class="dot"></span><span class="txt">ระบบ Online</span></span>
+      <div id="userChip"></div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ===================== DASHBOARD ===================== -->
+    <section class="page" id="page-dashboard">
+      <div class="hero">
+        <div class="row align-items-center g-3">
+          <div class="col-md-7">
+            <div class="small opacity-75 mb-1"><i class="fa-solid fa-building-columns me-1"></i><span data-org></span></div>
+            <h1 id="heroGreeting">ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</h1>
+            <div class="slogan">“แจ้งง่าย ติดตามได้ แก้ไขไว ตรวจสอบได้”</div>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <button class="btn btn-white" data-go="report" type="button"><i class="fa-solid fa-pen-to-square me-1"></i> แจ้งปัญหา IT</button>
+              <button class="btn btn-glass" data-go="track" type="button"><i class="fa-solid fa-magnifying-glass-location me-1"></i> ติดตาม Ticket</button>
+            </div>
+          </div>
+          <div class="col-md-5 text-md-end">
+            <div class="clock" id="heroClock">--:--:--</div>
+            <div class="date" id="heroDate"></div>
+            <div class="small opacity-75 mt-2" id="dashUpdated"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-grid" id="dashCards"></div>
+
+      <div class="cardx urgent-panel mb-3 d-none" id="urgentPanel">
+        <div class="cardx-title"><span class="ic" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i></span>ปัญหาด่วนมาก / กระทบการเรียนการสอน <span class="badge bg-danger rounded-pill ms-1" id="urgentCount">0</span></div>
+        <div id="urgentList"></div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-chart-line"></i></span>แนวโน้มการแจ้งปัญหา 14 วัน</div>
+            <div class="chart-box"><canvas id="chTrend"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-chart-pie"></i></span>ปัญหาแยกตามประเภท</div>
+            <div class="chart-box"><canvas id="chType"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-building"></i></span>ปัญหาแยกตามอาคาร</div>
+            <div class="chart-box"><canvas id="chBuilding"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-sitemap"></i></span>ปัญหาแยกตามแผนก / กลุ่มสาระ</div>
+            <div class="chart-box"><canvas id="chDept"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-user-gear"></i></span>เจ้าหน้าที่ที่รับงานมากที่สุด</div>
+            <div id="dashStaff"></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-rotate"></i></span>ปัญหาที่เกิดซ้ำบ่อย</div>
+            <div id="dashRecurring"></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cardx h-100">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-circle-half-stroke"></i></span>สถานะ Ticket ทั้งหมด</div>
+            <div class="chart-box"><canvas id="chStatus"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="cardx">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-clock-rotate-left"></i></span>Ticket ล่าสุด</div>
+            <div id="dashRecent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== REPORT FORM ===================== -->
+    <section class="page" id="page-report">
+      <div class="page-head">
+        <div>
+          <h2>📝 แจ้งปัญหา IT</h2>
+          <p>กรอกข้อมูลให้ครบถ้วน ระบบจะสร้าง Ticket และแจ้งเตือนเจ้าหน้าที่ IT ทันที</p>
+        </div>
+      </div>
+      <form id="reportForm" novalidate autocomplete="on">
+        <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="cardx h-100">
+              <div class="cardx-title"><span class="ic"><i class="fa-solid fa-user"></i></span>ข้อมูลผู้แจ้ง</div>
+              <div class="row g-3">
+                <div class="col-sm-5">
+                  <label class="form-label" for="f_reporterId">รหัสผู้แจ้ง</label>
+                  <input class="form-control" id="f_reporterId" name="reporterId" maxlength="50" placeholder="เช่น รหัสครู/พนักงาน">
+                </div>
+                <div class="col-sm-7">
+                  <label class="form-label req" for="f_reporterName">ชื่อ-นามสกุล</label>
+                  <input class="form-control" id="f_reporterName" name="reporterName" maxlength="120" required autocomplete="name">
+                  <div class="invalid-feedback">กรุณากรอกชื่อ-นามสกุล</div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label req" for="f_department">กลุ่มสาระ / ฝ่าย / แผนก</label>
+                  <input class="form-control" id="f_department" name="department" list="dlDepartments" maxlength="120" required>
+                  <div class="invalid-feedback">กรุณาระบุกลุ่มสาระ / ฝ่าย / แผนก</div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label req" for="f_phone">เบอร์โทรศัพท์</label>
+                  <input class="form-control" id="f_phone" name="phone" type="tel" inputmode="tel" maxlength="20" required autocomplete="tel">
+                  <div class="invalid-feedback">กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง</div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label" for="f_email">Email</label>
+                  <input class="form-control" id="f_email" name="email" type="email" inputmode="email" maxlength="120" autocomplete="email">
+                  <div class="invalid-feedback">รูปแบบอีเมลไม่ถูกต้อง</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="cardx h-100">
+              <div class="cardx-title"><span class="ic"><i class="fa-solid fa-location-dot"></i></span>ข้อมูลสถานที่</div>
+              <div class="row g-3">
+                <div class="col-sm-8">
+                  <label class="form-label req" for="f_building">อาคาร</label>
+                  <input class="form-control" id="f_building" name="building" list="dlBuildings" maxlength="100" required>
+                  <div class="invalid-feedback">กรุณาระบุอาคาร</div>
+                </div>
+                <div class="col-sm-4">
+                  <label class="form-label" for="f_floor">ชั้น</label>
+                  <input class="form-control" id="f_floor" name="floor" maxlength="30" inputmode="numeric">
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label req" for="f_room">ห้อง</label>
+                  <input class="form-control" id="f_room" name="room" maxlength="100" required placeholder="เช่น ห้องคอมพิวเตอร์ 1">
+                  <div class="invalid-feedback">กรุณาระบุห้อง</div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label" for="f_installPoint">จุดติดตั้ง</label>
+                  <input class="form-control" id="f_installPoint" name="installPoint" maxlength="150" placeholder="เช่น โต๊ะครู / แถวที่ 3">
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="f_assetId">หมายเลขครุภัณฑ์ / Asset ID</label>
+                  <input class="form-control" id="f_assetId" name="assetId" maxlength="60" placeholder="เช่น 7440-001-0001">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="cardx">
+              <div class="cardx-title"><span class="ic"><i class="fa-solid fa-screwdriver-wrench"></i></span>รายละเอียดปัญหา</div>
+              <div id="grpType" class="mb-3">
+                <label class="form-label req">ประเภทปัญหา</label>
+                <div class="type-grid" id="typeGrid"></div>
+                <div class="invalid-msg">กรุณาเลือกประเภทปัญหา</div>
+              </div>
+              <div class="row g-3">
+                <div class="col-lg-8">
+                  <label class="form-label req" for="f_problemTitle">หัวข้อปัญหา</label>
+                  <input class="form-control" id="f_problemTitle" name="problemTitle" maxlength="200" required placeholder="เช่น เครื่องคอมพิวเตอร์เปิดไม่ติด">
+                  <div class="invalid-feedback">กรุณากรอกหัวข้อปัญหา (อย่างน้อย 3 ตัวอักษร)</div>
+                </div>
+                <div class="col-lg-4">
+                  <label class="form-label">วันที่และเวลาแจ้ง</label>
+                  <input class="form-control bg-light" id="f_datetime" readonly tabindex="-1">
+                </div>
+                <div class="col-12">
+                  <label class="form-label req" for="f_problemDetail">รายละเอียดปัญหา</label>
+                  <textarea class="form-control" id="f_problemDetail" name="problemDetail" rows="4" maxlength="5000" required placeholder="อธิบายอาการ เช่น เปิดเครื่องแล้วไม่มีไฟ / ขึ้นข้อความ Error อะไร / เกิดขึ้นตั้งแต่เมื่อไร"></textarea>
+                  <div class="d-flex justify-content-between"><div class="invalid-feedback d-block invisible" id="detailInvalid">กรุณากรอกรายละเอียดปัญหา</div><small class="text-muted" id="detailCount">0/5000</small></div>
+                </div>
+              </div>
+              <div id="grpPriority" class="mt-2">
+                <label class="form-label req">ระดับความเร่งด่วน</label>
+                <div class="prio-grid" id="prioGrid"></div>
+                <div class="invalid-msg">กรุณาเลือกระดับความเร่งด่วน</div>
+              </div>
+              <div class="mt-4">
+                <label class="form-label">แนบรูปภาพ / Screenshot / ไฟล์เอกสาร <small class="text-muted fw-normal" id="fileHint"></small></label>
+                <div class="dropzone" id="dropzone" tabindex="0" role="button">
+                  <i class="fa-solid fa-cloud-arrow-up big"></i>
+                  <div class="fw-medium mt-1">แตะเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
+                  <small class="text-muted">รองรับ JPG, PNG, WEBP, GIF, PDF, Word, Excel, PowerPoint, TXT (รูปภาพจะถูกย่อขนาดอัตโนมัติ)</small>
+                  <div class="d-flex gap-2 justify-content-center mt-2 flex-wrap">
+                    <button class="btn btn-soft btn-sm" type="button" id="btnPickFile"><i class="fa-solid fa-paperclip me-1"></i> เลือกไฟล์</button>
+                    <button class="btn btn-soft btn-sm" type="button" id="btnCamera"><i class="fa-solid fa-camera me-1"></i> ถ่ายรูป</button>
+                  </div>
+                </div>
+                <input type="file" id="fileInput" class="d-none" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv">
+                <input type="file" id="cameraInput" class="d-none" accept="image/*" capture="environment">
+                <div class="file-grid" id="fileGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sticky-submit">
+          <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="f_remember" checked>
+              <label class="form-check-label small" for="f_remember">จดจำข้อมูลผู้แจ้งบนอุปกรณ์นี้</label>
+            </div>
+            <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0">
+              <button class="btn btn-light border" type="button" id="btnResetForm"><i class="fa-solid fa-rotate-left me-1"></i> ล้างข้อมูล</button>
+              <button class="btn btn-grad px-4 flex-grow-1" type="submit" id="btnSubmitReport"><i class="fa-solid fa-paper-plane me-1"></i> ส่งแจ้งปัญหา</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================== MY TICKETS ===================== -->
+    <section class="page" id="page-mytickets">
+      <div class="page-head">
+        <div>
+          <h2>🎫 Ticket ของฉัน</h2>
+          <p>รายการแจ้งปัญหาของคุณ และสถานะการดำเนินงานล่าสุด</p>
+        </div>
+        <div class="d-flex gap-2" data-role="auth">
+          <select class="form-select" id="myStatus" style="min-width:180px">
+            <option value="">ทุกสถานะ</option>
+            <option value="__open">กำลังดำเนินการทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+      <div class="cardx mb-3" data-role="guest">
+        <div class="cardx-title"><span class="ic"><i class="fa-solid fa-id-card"></i></span>ค้นหา Ticket ของฉัน <span class="sub">— ยืนยันตัวตนด้วยข้อมูลที่ใช้แจ้งปัญหา</span></div>
+        <form id="myVerifyForm" class="row g-2 align-items-end" novalidate>
+          <div class="col-md-5">
+            <label class="form-label" for="myKey">รหัสผู้แจ้ง หรือ Email</label>
+            <input class="form-control" id="myKey" maxlength="120" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="myPhone">เบอร์โทรศัพท์</label>
+            <input class="form-control" id="myPhone" type="tel" inputmode="tel" maxlength="20" required>
+          </div>
+          <div class="col-md-3 d-grid">
+            <button class="btn btn-grad" type="submit"><i class="fa-solid fa-magnifying-glass me-1"></i> ค้นหา</button>
+          </div>
+        </form>
+        <div class="small text-muted mt-2"><i class="fa-solid fa-circle-info me-1"></i>เจ้าหน้าที่ / ผู้ใช้ที่มีบัญชี สามารถ <a class="fw-medium text-decoration-none" data-login>เข้าสู่ระบบ</a> เพื่อดู Ticket ทั้งหมดของตนเองได้ทันที</div>
+      </div>
+      <div class="cardx mb-3">
+        <div id="myList"><div class="empty"><i class="fa-regular fa-folder-open"></i>กรอกข้อมูลเพื่อค้นหา Ticket ของคุณ</div></div>
+        <div id="myPager"></div>
+      </div>
+      <div class="cardx">
+        <div class="cardx-title"><span class="ic"><i class="fa-solid fa-mobile-screen"></i></span>Ticket ที่แจ้งจากอุปกรณ์นี้</div>
+        <div id="myDeviceList"></div>
+      </div>
+    </section>
+
+    <!-- ===================== TRACK ===================== -->
+    <section class="page" id="page-track">
+      <div class="page-head">
+        <div>
+          <h2>🔎 ติดตาม Ticket</h2>
+          <p>กรอก Ticket ID เพื่อดูสถานะและ Timeline การดำเนินงาน</p>
+        </div>
+      </div>
+      <div class="cardx mb-3">
+        <form class="track-search" id="trackForm" novalidate>
+          <input class="form-control" id="trackInput" placeholder="IT-20260909-0001" maxlength="20" autocomplete="off" autocapitalize="characters">
+          <button class="btn btn-grad" type="submit"><i class="fa-solid fa-magnifying-glass me-1"></i> ค้นหา</button>
+        </form>
+        <div class="chips mt-3" id="trackRecent"></div>
+      </div>
+      <div id="trackResult"></div>
+    </section>
+
+    <!-- ===================== IT WORK ===================== -->
+    <section class="page" id="page-work">
+      <div class="page-head">
+        <div>
+          <h2>🛠️ งาน IT</h2>
+          <p>จัดการ Ticket ทั้งหมด รับงาน มอบหมาย เปลี่ยนสถานะ บันทึกการแก้ไข และปิดงาน</p>
+        </div>
+        <button class="btn btn-soft" type="button" id="btnWorkRefresh"><i class="fa-solid fa-rotate me-1"></i> รีเฟรช</button>
+      </div>
+      <div class="status-tabs" id="statusTabs"></div>
+      <div class="cardx filter-panel mb-3">
+        <form id="filterForm" class="row g-2" novalidate>
+          <div class="col-lg-4 col-md-6">
+            <div class="input-group">
+              <span class="input-group-text bg-white" style="border-radius:12px 0 0 12px"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+              <input class="form-control" id="qSearch" placeholder="ค้นหา Ticket ID, ชื่อผู้แจ้ง, ห้อง, ประเภท, รายละเอียด, ผู้รับผิดชอบ" style="border-radius:0 12px 12px 0">
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-3 col-6"><select class="form-select" id="qType"><option value="">ทุกประเภท</option></select></div>
+          <div class="col-lg-2 col-md-3 col-6"><select class="form-select" id="qPriority"><option value="">ทุกความเร่งด่วน</option></select></div>
+          <div class="col-lg-2 col-md-4 col-6"><input class="form-control" id="qReporter" placeholder="ผู้แจ้ง"></div>
+          <div class="col-lg-2 col-md-4 col-6"><input class="form-control" id="qBuilding" placeholder="อาคาร" list="dlBuildingsFilter"></div>
+          <div class="col-lg-3 col-md-4 col-6"><select class="form-select" id="qAssigned"><option value="">ผู้รับผิดชอบทั้งหมด</option><option value="__none">— ยังไม่มอบหมาย —</option></select></div>
+          <div class="col-lg-2 col-md-4 col-6"><input class="form-control" type="date" id="qFrom" title="ตั้งแต่วันที่"></div>
+          <div class="col-lg-2 col-md-4 col-6"><input class="form-control" type="date" id="qTo" title="ถึงวันที่"></div>
+          <div class="col-lg-2 col-md-4 col-6">
+            <select class="form-select" id="qSort">
+              <option value="">ด่วนก่อน + ล่าสุด</option>
+              <option value="priority">ตามความเร่งด่วน</option>
+              <option value="newest">ล่าสุดก่อน</option>
+              <option value="oldest">เก่าสุดก่อน</option>
+            </select>
+          </div>
+          <div class="col-lg-1 col-md-4 col-6">
+            <select class="form-select" id="qSize" title="จำนวนต่อหน้า"><option>10</option><option selected>20</option><option>50</option></select>
+          </div>
+          <div class="col-lg-2 col-md-4 d-flex gap-2">
+            <button class="btn btn-grad flex-grow-1" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button>
+            <button class="btn btn-light border" type="button" id="btnClearFilter" title="ล้างตัวกรอง"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </form>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-1 px-1">
+        <small class="text-muted" id="workSummary"></small>
+      </div>
+      <div class="table-responsive-md" style="overflow-x:visible">
+        <table class="tk-table">
+          <thead>
+            <tr><th>Ticket</th><th>ผู้แจ้ง</th><th>สถานที่</th><th>ปัญหา</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th></th></tr>
+          </thead>
+          <tbody id="workBody"></tbody>
+        </table>
+      </div>
+      <div id="workPager"></div>
+    </section>
+
+    <!-- ===================== REPORTS ===================== -->
+    <section class="page" id="page-reports">
+      <div class="page-head">
+        <div>
+          <h2>📊 รายงาน</h2>
+          <p>สรุปผลการดำเนินงาน IT Helpdesk ตามช่วงเวลา พร้อม Export CSV</p>
+        </div>
+      </div>
+      <div class="cardx mb-3">
+        <div class="d-flex flex-wrap gap-2 align-items-end">
+          <div class="btn-group flex-wrap" role="group" id="rangeGroup">
+            <input type="radio" class="btn-check" name="rpRange" id="rp_today" value="today"><label class="btn btn-outline-primary" for="rp_today">วันนี้</label>
+            <input type="radio" class="btn-check" name="rpRange" id="rp_7d" value="7d"><label class="btn btn-outline-primary" for="rp_7d">7 วัน</label>
+            <input type="radio" class="btn-check" name="rpRange" id="rp_month" value="month" checked><label class="btn btn-outline-primary" for="rp_month">เดือนนี้</label>
+            <input type="radio" class="btn-check" name="rpRange" id="rp_last" value="lastmonth"><label class="btn btn-outline-primary" for="rp_last">เดือนที่ผ่านมา</label>
+            <input type="radio" class="btn-check" name="rpRange" id="rp_custom" value="custom"><label class="btn btn-outline-primary" for="rp_custom">กำหนดเอง</label>
+          </div>
+          <div class="d-flex gap-2 d-none" id="customRange">
+            <div><label class="form-label small mb-1" for="rpStart">ตั้งแต่</label><input type="date" class="form-control" id="rpStart"></div>
+            <div><label class="form-label small mb-1" for="rpEnd">ถึง</label><input type="date" class="form-control" id="rpEnd"></div>
+          </div>
+          <div class="ms-auto d-flex flex-wrap gap-2">
+            <button class="btn btn-grad" type="button" id="btnReport"><i class="fa-solid fa-chart-column me-1"></i> แสดงรายงาน</button>
+            <button class="btn btn-success" type="button" id="btnCsv"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</button>
+            <button class="btn btn-soft" type="button" id="btnCsvDrive" title="บันทึกไฟล์ CSV ลง Google Drive"><i class="fa-brands fa-google-drive me-1"></i> บันทึกลง Drive</button>
+          </div>
+        </div>
+      </div>
+      <div id="reportBody"><div class="empty"><i class="fa-solid fa-chart-simple"></i>เลือกช่วงเวลาแล้วกด “แสดงรายงาน”</div></div>
+    </section>
+
+    <!-- ===================== SETTINGS ===================== -->
+    <section class="page" id="page-settings">
+      <div class="page-head">
+        <div>
+          <h2>⚙️ ตั้งค่า</h2>
+          <p>บัญชีผู้ใช้ การตั้งค่าระบบ การแจ้งเตือน และผู้ใช้งาน</p>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-lg-5">
+          <div class="cardx" data-role="guest">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-right-to-bracket"></i></span>เข้าสู่ระบบ</div>
+            <form id="loginForm" novalidate>
+              <label class="form-label" for="lgId">รหัสผู้ใช้ หรือ Email</label>
+              <input class="form-control mb-2" id="lgId" autocomplete="username" required>
+              <label class="form-label" for="lgPw">รหัสผ่าน</label>
+              <input class="form-control mb-3" id="lgPw" type="password" autocomplete="current-password" required>
+              <button class="btn btn-grad w-100" type="submit"><i class="fa-solid fa-right-to-bracket me-1"></i> เข้าสู่ระบบ</button>
+            </form>
+            <div class="small text-muted mt-3"><i class="fa-solid fa-circle-info me-1"></i>ผู้แจ้งปัญหาทั่วไปไม่จำเป็นต้องเข้าสู่ระบบ สามารถแจ้งปัญหาและติดตามด้วย Ticket ID ได้ทันที</div>
+          </div>
+          <div class="cardx" data-role="auth" id="profileCard"></div>
+        </div>
+        <div class="col-lg-7" data-role="admin">
+          <div class="cardx">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-sliders"></i></span>ตั้งค่าทั่วไป</div>
+            <form id="settingsForm" novalidate>
+              <label class="form-label" for="s_org">ชื่อหน่วยงาน / โรงเรียน</label>
+              <input class="form-control mb-3" id="s_org" maxlength="200">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label" for="s_assignees">ผู้รับผิดชอบ (บรรทัดละ 1)</label>
+                  <textarea class="form-control" id="s_assignees" rows="6"></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="s_buildings">อาคาร (บรรทัดละ 1)</label>
+                  <textarea class="form-control" id="s_buildings" rows="6"></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="s_departments">แผนก / กลุ่มสาระ (บรรทัดละ 1)</label>
+                  <textarea class="form-control" id="s_departments" rows="6"></textarea>
+                </div>
+              </div>
+              <div class="row g-2 mt-2">
+                <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_guest"><label class="form-check-label" for="s_guest">แจ้งปัญหาโดยไม่ต้อง Login</label></div></div>
+                <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_tg"><label class="form-check-label" for="s_tg">แจ้งเตือน Telegram</label></div></div>
+                <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_gc"><label class="form-check-label" for="s_gc">แจ้งเตือน Google Chat</label></div></div>
+              </div>
+              <label class="form-label mt-3" for="s_sharing">สิทธิ์การเข้าถึงไฟล์แนบ</label>
+              <select class="form-select" id="s_sharing">
+                <option value="ANYONE_WITH_LINK">ทุกคนที่มีลิงก์ดูได้</option>
+                <option value="DOMAIN_WITH_LINK">เฉพาะผู้ใช้ในองค์กร (Google Workspace)</option>
+                <option value="PRIVATE">ส่วนตัว (เฉพาะเจ้าของสคริปต์)</option>
+              </select>
+              <div class="text-end mt-3"><button class="btn btn-grad" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i> บันทึกการตั้งค่า</button></div>
+            </form>
+          </div>
+          <div class="cardx">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-bell"></i></span>การแจ้งเตือน &amp; ค่าลับ <span class="sub">— เก็บใน Script Properties ไม่แสดงกลับบนหน้าเว็บ</span></div>
+            <div class="row g-2 mb-3" id="secretStatus"></div>
+            <form id="secretForm" novalidate autocomplete="off">
+              <div class="row g-2">
+                <div class="col-md-6"><label class="form-label" for="sc_tgToken">Telegram Bot Token</label><input class="form-control" id="sc_tgToken" type="password" placeholder="ไม่เปลี่ยน ให้เว้นว่าง" autocomplete="new-password"></div>
+                <div class="col-md-6"><label class="form-label" for="sc_tgChat">Telegram Chat ID</label><input class="form-control" id="sc_tgChat" placeholder="เช่น -1001234567890"></div>
+                <div class="col-12"><label class="form-label" for="sc_gc">Google Chat Webhook URL</label><input class="form-control" id="sc_gc" type="password" placeholder="https://chat.googleapis.com/v1/spaces/..." autocomplete="new-password"></div>
+                <div class="col-12"><label class="form-label" for="sc_drive">Google Drive Folder ID (ไฟล์แนบ)</label><input class="form-control" id="sc_drive" placeholder="ไม่เปลี่ยน ให้เว้นว่าง"></div>
+              </div>
+              <small class="text-muted d-block mt-2">พิมพ์ <code>-</code> เพื่อลบค่าที่บันทึกไว้ (ระบบจะกลับไปใช้ค่าใน code.gs)</small>
+              <div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
+                <button class="btn btn-soft" type="button" data-test="telegram"><i class="fa-brands fa-telegram me-1"></i> ทดสอบ Telegram</button>
+                <button class="btn btn-soft" type="button" data-test="googlechat"><i class="fa-solid fa-comments me-1"></i> ทดสอบ Google Chat</button>
+                <button class="btn btn-grad" type="submit"><i class="fa-solid fa-key me-1"></i> บันทึกค่าลับ</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="col-12" data-role="admin">
+          <div class="cardx">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+              <div class="cardx-title mb-0"><span class="ic"><i class="fa-solid fa-users"></i></span>ผู้ใช้งานระบบ</div>
+              <button class="btn btn-grad btn-sm" type="button" id="btnAddUser"><i class="fa-solid fa-user-plus me-1"></i> เพิ่มผู้ใช้</button>
+            </div>
+            <div id="userList"></div>
+          </div>
+          <div class="cardx">
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-server"></i></span>ข้อมูลระบบ</div>
+            <div id="systemInfo"></div>
+            <button class="btn btn-soft mt-3" type="button" id="btnInit"><i class="fa-solid fa-table-cells me-1"></i> ตรวจสอบ / สร้าง Sheet อัตโนมัติ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Bottom nav (mobile) -->
+<nav class="bottom-nav">
+  <a data-nav="dashboard"><i class="fa-solid fa-house"></i>Dashboard</a>
+  <a data-nav="mytickets"><i class="fa-solid fa-ticket"></i>ของฉัน</a>
+  <a data-nav="report" class="center"><i class="fa-solid fa-plus"></i>แจ้งปัญหา</a>
+  <a data-nav="track"><i class="fa-solid fa-magnifying-glass-location"></i>ติดตาม</a>
+  <a id="bnMore"><i class="fa-solid fa-grip"></i>เมนู</a>
+</nav>
+
+<datalist id="dlDepartments"></datalist>
+<datalist id="dlBuildings"></datalist>
+<datalist id="dlBuildingsFilter"></datalist>
+
+<!-- Ticket detail modal (IT Staff) -->
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+    <div class="modal-content">
+      <div class="tm-head d-flex align-items-start gap-3">
+        <div class="flex-grow-1" id="tmHead"><div class="fw-semibold">กำลังโหลด...</div></div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+      </div>
+      <div class="modal-body p-0" id="tmBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+/* =====================================================================================
+ * IT Helpdesk — Frontend (SPA)
+ * ติดต่อ Backend ผ่าน google.script.run เท่านั้น (ไม่มี Token/Webhook ในไฟล์นี้)
+ * ===================================================================================== */
+'use strict';
+
+const A = {
+  token: null, user: null, meta: null, settings: null, page: null,
+  charts: {}, files: [], submitting: false, loading: 0, dashTimer: null,
+  q: { page: 1, pageSize: 20, status: '', search: '', type: '', priority: '', reporter: '', building: '', assignedTo: '', dateFrom: '', dateTo: '', sort: '' },
+  my: { page: 1, key: '', phone: '' },
+  track: null, modal: { id: null, data: null, tab: 'info', instance: null },
+  reportData: null, admin: { users: [], settings: null }
+};
+
+const PAGES = {
+  dashboard: { title: 'Dashboard' },
+  report: { title: 'แจ้งปัญหา' },
+  mytickets: { title: 'Ticket ของฉัน' },
+  track: { title: 'ติดตาม Ticket' },
+  work: { title: 'งาน IT', staff: true },
+  reports: { title: 'รายงาน', staff: true },
+  settings: { title: 'ตั้งค่า' }
+};
+
+const PALETTE = ['#4f46e5', '#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#0ea5e9', '#a855f7', '#64748b'];
+
+/* ---------------------------------- Helpers ---------------------------------- */
+const $ = (s, el) => (el || document).querySelector(s);
+const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"'`=\/]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;', '=': '&#61;', '/': '&#47;' }[c]));
+}
+function nl2br(v) { return esc(v).replace(/\n/g, '<br>'); }
+function rgba(hex, a) { const n = parseInt(String(hex).replace('#', ''), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+function soft(hex) { return `color:${hex};background:${rgba(hex, .12)};border:1px solid ${rgba(hex, .3)}`; }
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmtBytes(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
+function money(v) { return (parseFloat(v) || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function bkkDate(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d || new Date()); }
+function isTicketId(s) { return /^IT-\d{8}-\d{4,6}$/.test(String(s || '').trim().toUpperCase()); }
+function stars(n) { n = parseInt(n, 10) || 0; return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n)); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+function safeDriveUrl(u) { return /^https:\/\/drive\.google\.com\//.test(String(u || '')) ? u : ''; }
+function initials(name) { const s = String(name || '?').trim(); return esc(s.charAt(0).toUpperCase() || '?'); }
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+};
+
+function statusInfo(s) { return (A.meta && A.meta.statuses.find(x => x.value === s)) || { value: s, emoji: '⚪', color: '#64748b', icon: 'fa-solid fa-circle', step: 0 }; }
+function prioInfo(p) { return (A.meta && A.meta.priorities.find(x => x.value === p)) || { value: p, label: p, emoji: '⚪', color: '#64748b', level: 0 }; }
+function typeInfo(t) { return (A.meta && A.meta.types.find(x => x.value === t)) || { value: t, icon: 'fa-solid fa-circle-question' }; }
+function badgeStatus(s) { const i = statusInfo(s); return `<span class="badge-soft" style="${soft(i.color)}"><i class="${esc(i.icon)}"></i>${esc(s || '-')}</span>`; }
+function badgePrio(p) { const i = prioInfo(p); const urgent = A.meta && p === A.meta.urgentPriority; return `<span class="badge-soft ${urgent ? 'pulse-red' : ''}" style="${soft(i.color)}">${i.emoji} ${esc(p || '-')}</span>`; }
+function typeChip(t) { return `<span class="type-chip"><i class="${esc(typeInfo(t).icon)}"></i>${esc(t || '-')}</span>`; }
+function loaderHtml(text) { return `<div class="inline-loader"><div class="spinner-ring"></div>${esc(text || 'กำลังโหลดข้อมูล...')}</div>`; }
+function emptyHtml(text, icon) { return `<div class="empty"><i class="${icon || 'fa-regular fa-folder-open'}"></i>${esc(text)}</div>`; }
+
+/* ---------------------------------- API ---------------------------------- */
+function api(fn, ...args) {
+  return new Promise((resolve, reject) => {
+    if (!(window.google && google.script && google.script.run)) {
+      const e = new Error('กรุณาเปิดหน้านี้ผ่าน URL ของ Google Apps Script Web App');
+      e.code = 'NO_GAS';
+      reject(e);
+      return;
+    }
+    google.script.run
+      .withSuccessHandler(res => {
+        setOnline(true);
+        if (res && res.ok === false) {
+          const e = new Error(res.message || 'เกิดข้อผิดพลาด');
+          e.code = res.code;
+          reject(e);
+        } else {
+          resolve(res && typeof res === 'object' && 'data' in res ? res.data : res);
+        }
+      })
+      .withFailureHandler(err => {
+        const e = new Error((err && err.message) || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+        e.code = 'NETWORK';
+        if (!navigator.onLine) setOnline(false);
+        reject(e);
+      })[fn](...args);
+  });
+}
+
+function showLoading(text) {
+  A.loading++;
+  $('#loadingText').textContent = text || 'กำลังโหลด...';
+  $('#loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  A.loading = Math.max(0, A.loading - 1);
+  if (!A.loading) $('#loadingOverlay').classList.remove('show');
+}
+const Toast = () => Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2600, timerProgressBar: true });
+function toast(icon, title) { Toast().fire({ icon, title }); }
+
+function handleError(err, title) {
+  console.error(err);
+  if (err && err.code === 'AUTH') {
+    clearAuth();
+    Swal.fire({ icon: 'warning', title: 'กรุณาเข้าสู่ระบบ', text: err.message, showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ปิด' })
+      .then(r => { if (r.isConfirmed) showLoginDialog(); });
+    return;
+  }
+  if (err && err.code === 'MUST_CHANGE') { promptChangePassword(true); return; }
+  Swal.fire({ icon: 'error', title: title || 'เกิดข้อผิดพลาด', text: (err && err.message) || String(err), confirmButtonText: 'ตกลง' });
+}
+
+function setBusy(btn, busy, text) {
+  if (!btn) return;
+  if (busy) {
+    btn.dataset.html = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>${esc(text || 'กำลังดำเนินการ...')}`;
+  } else {
+    btn.disabled = false;
+    if (btn.dataset.html) btn.innerHTML = btn.dataset.html;
+  }
+}
+
+function setOnline(on) {
+  const p = $('#onlinePill');
+  if (!p) return;
+  p.classList.toggle('off', !on);
+  p.querySelector('.txt').textContent = on ? 'ระบบ Online' : 'Offline';
+}
+
+function copyText(text) {
+  const done = () => toast('success', 'คัดลอกแล้ว');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+  const t = document.createElement('textarea');
+  t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+  t.remove();
+}
+
+/* ---------------------------------- Init ---------------------------------- */
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  bindEvents();
+  startClock();
+  A.token = store.get('ithd_token', null);
+  showLoading('กำลังเชื่อมต่อระบบ...');
+  try {
+    const b = await api('getBootstrap', A.token);
+    A.meta = b.meta;
+    A.settings = b.settings;
+    setAuth(b.token, b.user);
+    buildStaticUI();
+    const deep = await getUrlParam('ticket');
+    if (deep && isTicketId(deep)) {
+      if (A.user && A.user.isStaff) { navigate('work'); openTicketModal(deep.toUpperCase()); }
+      else navigate('track', { ticketId: deep });
+    } else navigate('dashboard');
+    if (A.user && A.user.mustChange) promptChangePassword(true);
+  } catch (e) {
+    showFatal(e);
+  } finally {
+    hideLoading();
+  }
+  window.addEventListener('online', () => setOnline(true));
+  window.addEventListener('offline', () => setOnline(false));
+}
+
+function getUrlParam(name) {
+  return new Promise(resolve => {
+    try { google.script.url.getLocation(loc => resolve(((loc && loc.parameter) || {})[name] || '')); }
+    catch (e) { resolve(''); }
+  });
+}
+
+function showFatal(e) {
+  setOnline(false);
+  $$('.page').forEach(p => p.classList.remove('active'));
+  const d = $('#page-dashboard');
+  d.classList.add('active');
+  d.innerHTML = `<div class="cardx text-center py-5"><i class="fa-solid fa-plug-circle-xmark fa-3x text-danger mb-3"></i>
+    <h4>ไม่สามารถเชื่อมต่อระบบได้</h4><p class="text-muted">${esc(e.message)}</p>
+    <button class="btn btn-grad" type="button" onclick="location.reload()"><i class="fa-solid fa-rotate me-1"></i> ลองใหม่</button></div>`;
+}
+
+function startClock() {
+  const tick = () => {
+    const now = new Date();
+    const time = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour12: false });
+    const date = now.toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const c = $('#heroClock'); if (c) c.textContent = time;
+    const d = $('#heroDate'); if (d) d.textContent = date;
+    const f = $('#f_datetime');
+    if (f) f.value = now.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) + ' น.';
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+function buildStaticUI() {
+  const m = A.meta;
+  $$('[data-org]').forEach(el => { el.textContent = A.settings.ORG_NAME || m.appName; });
+  $('#typeGrid').innerHTML = m.types.map((t, i) => `
+    <div class="opt"><input type="radio" name="problemType" id="pt${i}" value="${esc(t.value)}">
+    <label for="pt${i}"><i class="${esc(t.icon)}"></i>${esc(t.value)}</label></div>`).join('');
+  $('#prioGrid').innerHTML = m.priorities.map((p, i) => `
+    <div class="opt" style="--pc:${p.color};--pbg:${rgba(p.color, .14)}"><input type="radio" name="priority" id="pp${i}" value="${esc(p.value)}" ${i === 0 ? 'checked' : ''}>
+    <label for="pp${i}"><span class="em">${p.emoji}</span>${esc(p.label)}</label></div>`).join('');
+  $('#fileHint').textContent = `(สูงสุด ${m.maxFiles} ไฟล์, ไฟล์ละไม่เกิน ${Math.round(m.maxFileBytes / 1048576)} MB)`;
+  $('#qType').innerHTML = '<option value="">ทุกประเภท</option>' + m.types.map(t => `<option>${esc(t.value)}</option>`).join('');
+  $('#qPriority').innerHTML = '<option value="">ทุกความเร่งด่วน</option>' + m.priorities.map(p => `<option value="${esc(p.value)}">${p.emoji} ${esc(p.value)}</option>`).join('');
+  $('#myStatus').innerHTML = '<option value="">ทุกสถานะ</option><option value="__open">กำลังดำเนินการทั้งหมด</option>' + m.statuses.map(s => `<option value="${esc(s.value)}">${s.emoji} ${esc(s.value)}</option>`).join('');
+  fillDatalists();
+}
+
+function fillDatalists() {
+  $('#dlDepartments').innerHTML = (A.settings.DEPARTMENTS || []).map(d => `<option value="${esc(d)}">`).join('');
+  $('#dlBuildings').innerHTML = (A.settings.BUILDINGS || []).map(d => `<option value="${esc(d)}">`).join('');
+}
+
+/* ---------------------------------- Auth ---------------------------------- */
+function setAuth(token, user) {
+  A.token = token || null;
+  A.user = user || null;
+  if (A.token) store.set('ithd_token', A.token); else store.del('ithd_token');
+  applyRoles();
+  renderUserChip();
+}
+function clearAuth() { setAuth(null, null); }
+
+function applyRoles() {
+  const u = A.user;
+  $$('[data-role]').forEach(el => {
+    const r = el.dataset.role;
+    const show = r === 'staff' ? !!(u && u.isStaff) : r === 'admin' ? !!(u && u.isAdmin) : r === 'auth' ? !!u : r === 'guest' ? !u : true;
+    el.classList.toggle('d-none', !show);
+  });
+  $$('[data-lock]').forEach(el => el.classList.toggle('d-none', !!(u && u.isStaff)));
+  const g = $('#heroGreeting');
+  if (g) g.textContent = u ? `สวัสดี, ${u.name}` : 'ระบบแจ้งปัญหาคอมพิวเตอร์และ IT';
+}
+
+function renderUserChip() {
+  const el = $('#userChip');
+  const u = A.user;
+  if (!u) {
+    el.innerHTML = `<button class="btn btn-grad btn-sm px-3" type="button" id="btnLoginTop"><i class="fa-solid fa-right-to-bracket me-1"></i><span class="d-none d-sm-inline">เข้าสู่ระบบ</span></button>`;
+    $('#btnLoginTop').onclick = () => showLoginDialog();
+    return;
+  }
+  el.innerHTML = `<div class="user-chip" id="chipUser" title="บัญชีผู้ใช้"><div class="avatar">${initials(u.name)}</div>
+    <div class="meta"><div class="nm">${esc(u.name)}</div><div class="rl">${esc(u.role)}${u.guest ? ' • Google' : ''}</div></div></div>`;
+  $('#chipUser').onclick = () => navigate('settings');
+}
+
+async function showLoginDialog(nextPage) {
+  const res = await Swal.fire({
+    title: 'เข้าสู่ระบบ',
+    html: `<div class="swal-form">
+      <label for="swId">รหัสผู้ใช้ หรือ Email</label><input id="swId" class="form-control" autocomplete="username">
+      <label for="swPw">รหัสผ่าน</label><input id="swPw" type="password" class="form-control" autocomplete="current-password"></div>`,
+    showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ยกเลิก', focusConfirm: false,
+    showLoaderOnConfirm: true, allowOutsideClick: () => !Swal.isLoading(),
+    didOpen: () => {
+      $('#swId').focus();
+      $('#swPw').addEventListener('keydown', e => { if (e.key === 'Enter') Swal.clickConfirm(); });
+    },
+    preConfirm: async () => {
+      const id = $('#swId').value.trim(), pw = $('#swPw').value;
+      if (!id || !pw) { Swal.showValidationMessage('กรุณากรอกรหัสผู้ใช้และรหัสผ่าน'); return false; }
+      try { return await api('login', id, pw); }
+      catch (e) { Swal.showValidationMessage(e.message); return false; }
+    }
+  });
+  if (res.isConfirmed && res.value) afterLogin(res.value, nextPage);
+}
+
+function afterLogin(r, nextPage) {
+  setAuth(r.token, r.user);
+  toast('success', `ยินดีต้อนรับ ${r.user.name}`);
+  if (r.user.mustChange) { promptChangePassword(true); return; }
+  navigate(nextPage || (r.user.isStaff ? 'work' : (A.page || 'dashboard')));
+}
+
+async function promptChangePassword(force) {
+  const res = await Swal.fire({
+    title: force ? 'กรุณาเปลี่ยนรหัสผ่าน' : 'เปลี่ยนรหัสผ่าน',
+    html: `${force ? '<div class="swal-note mb-2">คุณกำลังใช้รหัสผ่านเริ่มต้น เพื่อความปลอดภัยกรุณาตั้งรหัสผ่านใหม่ก่อนใช้งาน</div>' : ''}
+      <div class="swal-form">
+      <label for="cpOld">รหัสผ่านเดิม</label><input id="cpOld" type="password" class="form-control" autocomplete="current-password">
+      <label for="cpNew">รหัสผ่านใหม่ (อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข)</label><input id="cpNew" type="password" class="form-control" autocomplete="new-password">
+      <label for="cpNew2">ยืนยันรหัสผ่านใหม่</label><input id="cpNew2" type="password" class="form-control" autocomplete="new-password"></div>`,
+    showCancelButton: !force, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก',
+    allowOutsideClick: !force, allowEscapeKey: !force, showLoaderOnConfirm: true, focusConfirm: false,
+    footer: force ? '<a id="cpLogout" class="text-decoration-none">ออกจากระบบ</a>' : '',
+    didOpen: () => { const l = $('#cpLogout'); if (l) l.onclick = () => { Swal.close(); doLogout(); }; },
+    preConfirm: async () => {
+      const o = $('#cpOld').value, n = $('#cpNew').value, n2 = $('#cpNew2').value;
+      if (!o || !n) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
+      if (n !== n2) { Swal.showValidationMessage('รหัสผ่านใหม่ไม่ตรงกัน'); return false; }
+      if (n.length < 8 || !/[A-Za-z]/.test(n) || !/\d/.test(n)) { Swal.showValidationMessage('รหัสผ่านต้องมีอย่างน้อย 8 ตัว และมีทั้งตัวอักษรและตัวเลข'); return false; }
+      try { return await api('changePassword', o, n, A.token); }
+      catch (e) { Swal.showValidationMessage(e.message); return false; }
+    }
+  });
+  if (res.isConfirmed && res.value) {
+    setAuth(A.token, res.value);
+    Swal.fire({ icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ', timer: 1800, showConfirmButton: false });
+    navigate(A.user.isStaff ? 'work' : 'dashboard');
+  }
+}
+
+async function doLogout() {
+  const token = A.token;
+  clearAuth();
+  try { await api('logout', token); } catch (e) { /* ignore */ }
+  toast('success', 'ออกจากระบบแล้ว');
+  navigate('dashboard');
+}
+
+/* ---------------------------------- Navigation ---------------------------------- */
+function navigate(page, opts) {
+  opts = opts || {};
+  const def = PAGES[page] || PAGES.dashboard;
+  if (def.staff && !(A.user && A.user.isStaff)) {
+    Swal.fire({ icon: 'info', title: 'สำหรับเจ้าหน้าที่ IT', text: 'กรุณาเข้าสู่ระบบด้วยบัญชีเจ้าหน้าที่ IT หรือผู้ดูแลระบบ', showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ยกเลิก' })
+      .then(r => { if (r.isConfirmed) showLoginDialog(page); });
+    return;
+  }
+  A.page = page;
+  $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+  $$('[data-nav]').forEach(a => a.classList.toggle('active', a.dataset.nav === page));
+  closeSidebar();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  clearInterval(A.dashTimer);
+  const handlers = {
+    dashboard: () => {
+      loadDashboard(false);
+      A.dashTimer = setInterval(() => { if (!document.hidden && A.page === 'dashboard') loadDashboard(true); }, 60000);
+    },
+    report: prefillReporter,
+    mytickets: renderMyTicketsPage,
+    track: () => { renderTrackRecent(); if (opts.ticketId) { $('#trackInput').value = opts.ticketId.toUpperCase(); trackTicket(); } },
+    work: () => loadTickets(false),
+    reports: () => { if (!A.reportData) loadReport(); },
+    settings: renderSettings
+  };
+  if (handlers[page]) handlers[page]();
+}
+
+function openSidebar() { $('#sidebar').classList.add('open'); $('#sidebarBackdrop').classList.add('show'); }
+function closeSidebar() { $('#sidebar').classList.remove('open'); $('#sidebarBackdrop').classList.remove('show'); }
+
+function bindEvents() {
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('[data-nav]');
+    if (nav) { e.preventDefault(); navigate(nav.dataset.nav); return; }
+    const go = e.target.closest('[data-go]');
+    if (go) { navigate(go.dataset.go); return; }
+    const lg = e.target.closest('[data-login]');
+    if (lg) { showLoginDialog(); return; }
+    const tk = e.target.closest('[data-track]');
+    if (tk) { navigate('track', { ticketId: tk.dataset.track }); return; }
+    const op = e.target.closest('[data-open]');
+    if (op) { e.stopPropagation(); openTicket(op.dataset.open); }
+  });
+  $('#btnMenu').onclick = openSidebar;
+  $('#bnMore').onclick = openSidebar;
+  $('#sidebarBackdrop').onclick = closeSidebar;
+
+  // Report form
+  $('#reportForm').addEventListener('submit', submitReport);
+  $('#btnResetForm').onclick = () => resetReportForm(true);
+  $('#f_problemDetail').addEventListener('input', e => {
+    $('#detailCount').textContent = `${e.target.value.length}/5000`;
+    if (e.target.value.trim()) $('#detailInvalid').classList.add('invisible');
+  });
+  $('#reportForm').addEventListener('input', e => {
+    if (e.target.classList.contains('is-invalid')) e.target.classList.remove('is-invalid');
+    if (e.target.name === 'problemType') $('#grpType').classList.remove('group-invalid');
+    if (e.target.name === 'priority') $('#grpPriority').classList.remove('group-invalid');
+  });
+  $('#reportForm').addEventListener('change', e => {
+    if (e.target.name === 'problemType') $('#grpType').classList.remove('group-invalid');
+    if (e.target.name === 'priority') $('#grpPriority').classList.remove('group-invalid');
+  });
+  const dz = $('#dropzone');
+  $('#btnPickFile').onclick = e => { e.stopPropagation(); $('#fileInput').click(); };
+  $('#btnCamera').onclick = e => { e.stopPropagation(); $('#cameraInput').click(); };
+  dz.onclick = () => $('#fileInput').click();
+  dz.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#fileInput').click(); } };
+  ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+  dz.addEventListener('drop', e => { if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+  $('#fileInput').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+  $('#cameraInput').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+  $('#fileGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-rm]');
+    if (b) { A.files.splice(parseInt(b.dataset.rm, 10), 1); renderFiles(); }
+  });
+
+  // Track
+  $('#trackForm').addEventListener('submit', e => { e.preventDefault(); trackTicket(); });
+  $('#trackInput').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/\s/g, ''); });
+
+  // My tickets
+  $('#myVerifyForm').addEventListener('submit', e => {
+    e.preventDefault();
+    A.my.key = $('#myKey').value.trim();
+    A.my.phone = $('#myPhone').value.trim();
+    if (!A.my.key || A.my.phone.replace(/\D/g, '').length < 6) { Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'กรุณากรอกรหัสผู้แจ้งหรืออีเมล และเบอร์โทรศัพท์' }); return; }
+    loadMyTickets(1);
+  });
+  $('#myStatus').onchange = () => loadMyTickets(1);
+
+  // Work
+  $('#filterForm').addEventListener('submit', e => { e.preventDefault(); A.q.page = 1; loadTickets(false); });
+  $('#qSearch').addEventListener('input', debounce(() => { A.q.page = 1; loadTickets(false); }, 450));
+  ['qType', 'qPriority', 'qAssigned', 'qSort', 'qSize', 'qFrom', 'qTo'].forEach(id => $('#' + id).addEventListener('change', () => { A.q.page = 1; loadTickets(false); }));
+  $('#btnClearFilter').onclick = () => { $('#filterForm').reset(); $('#qSize').value = '20'; A.q.status = ''; A.q.page = 1; loadTickets(false); };
+  $('#btnWorkRefresh').onclick = () => loadTickets(false);
+  $('#statusTabs').addEventListener('click', e => {
+    const b = e.target.closest('[data-st]');
+    if (!b) return;
+    A.q.status = b.dataset.st; A.q.page = 1; loadTickets(false);
+  });
+  $('#workBody').addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-id]');
+    if (tr) openTicketModal(tr.dataset.id);
+  });
+
+  // Reports
+  $$('input[name=rpRange]').forEach(r => r.addEventListener('change', () => {
+    $('#customRange').classList.toggle('d-none', r.value !== 'custom' || !r.checked);
+    if (r.checked && r.value !== 'custom') loadReport();
+  }));
+  $('#btnReport').onclick = () => loadReport();
+  $('#btnCsv').onclick = e => exportCsv(false, e.currentTarget);
+  $('#btnCsvDrive').onclick = e => exportCsv(true, e.currentTarget);
+
+  // Settings
+  $('#loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.submitter || $('#loginForm button[type=submit]');
+    const id = $('#lgId').value.trim(), pw = $('#lgPw').value;
+    if (!id || !pw) { Swal.fire({ icon: 'warning', title: 'กรุณากรอกรหัสผู้ใช้และรหัสผ่าน' }); return; }
+    setBusy(btn, true, 'กำลังเข้าสู่ระบบ...');
+    try { const r = await api('login', id, pw); $('#lgPw').value = ''; afterLogin(r); }
+    catch (err) { handleError(err, 'เข้าสู่ระบบไม่สำเร็จ'); }
+    finally { setBusy(btn, false); }
+  });
+  $('#settingsForm').addEventListener('submit', saveGeneralSettings);
+  $('#secretForm').addEventListener('submit', saveSecrets);
+  $$('[data-test]').forEach(b => b.onclick = () => testNotify(b.dataset.test, b));
+  $('#btnAddUser').onclick = () => editUser(null);
+  $('#btnInit').onclick = async e => {
+    const btn = e.currentTarget;
+    setBusy(btn, true, 'กำลังตรวจสอบ...');
+    try { const r = await api('initializeSystem', A.token); Swal.fire({ icon: 'success', title: 'เรียบร้อย', text: r.message }); }
+    catch (err) { handleError(err); } finally { setBusy(btn, false); }
+  };
+  $('#userList').addEventListener('click', e => {
+    const b = e.target.closest('[data-edit-user]');
+    if (b) editUser(A.admin.users.find(u => u.userId === b.dataset.editUser));
+  });
+}
+
+function openTicket(id) {
+  if (A.user && A.user.isStaff) openTicketModal(id);
+  else navigate('track', { ticketId: id });
+}
+
+/* ---------------------------------- Charts ---------------------------------- */
+if (window.Chart) {
+  Chart.defaults.font.family = "'Prompt', sans-serif";
+  Chart.defaults.color = '#64748b';
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+}
+function makeChart(id, config, hasData) {
+  const canvas = document.getElementById(id);
+  if (!canvas || !window.Chart) return;
+  if (A.charts[id]) { A.charts[id].destroy(); delete A.charts[id]; }
+  const empty = canvas.parentElement.querySelector('.chart-empty');
+  if (empty) empty.classList.toggle('show', !hasData);
+  canvas.style.display = hasData ? '' : 'none';
+  if (hasData) A.charts[id] = new Chart(canvas, config);
+}
+function doughnutChart(id, items, colors) {
+  const data = items.filter(i => i.value > 0);
+  makeChart(id, {
+    type: 'doughnut',
+    data: { labels: data.map(i => i.label), datasets: [{ data: data.map(i => i.value), backgroundColor: data.map((i, k) => i.color || (colors || PALETTE)[k % PALETTE.length]), borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '64%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+  }, data.length > 0);
+}
+function barChart(id, items, horizontal, color) {
+  makeChart(id, {
+    type: 'bar',
+    data: { labels: items.map(i => i.label), datasets: [{ label: 'จำนวน', data: items.map(i => i.value), backgroundColor: items.map((i, k) => i.color || color || PALETTE[k % PALETTE.length]), borderRadius: 8, maxBarThickness: 36 }] },
+    options: {
+      indexAxis: horizontal ? 'y' : 'x', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: !horizontal ? false : true }, ticks: { precision: 0 } }, y: { grid: { display: horizontal ? false : true }, ticks: { precision: 0 } } }
+    }
+  }, items.some(i => i.value > 0));
+}
+function lineChart(id, trend) {
+  const has = trend.created.some(v => v > 0) || trend.resolved.some(v => v > 0);
+  makeChart(id, {
+    type: 'line',
+    data: {
+      labels: trend.labels,
+      datasets: [
+        { label: 'แจ้งปัญหา', data: trend.created, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.12)', fill: true, tension: .35, pointRadius: 3 },
+        { label: 'แก้ไขแล้ว', data: trend.resolved, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.08)', fill: true, tension: .35, pointRadius: 3 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top', align: 'end' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+  }, has);
+}
+
+/* ---------------------------------- Dashboard ---------------------------------- */
+async function loadDashboard(silent) {
+  if (!silent && !$('#dashCards').children.length) $('#dashCards').innerHTML = loaderHtml('กำลังโหลด Dashboard...');
+  try {
+    const d = await api('getDashboardData', A.token);
+    renderDashboard(d);
+  } catch (e) {
+    if (!silent) handleError(e);
+  }
+}
+
+function renderDashboard(d) {
+  const c = d.cards;
+  const today = bkkDate();
+  const defs = [
+    { k: 'total', label: 'แจ้งปัญหาทั้งหมด', icon: 'fa-ticket', g: 'g-blue', f: {} },
+    { k: 'pending', label: 'รอดำเนินการ', icon: 'fa-hourglass-start', g: 'g-amber', f: { status: '__pending' } },
+    { k: 'inProgress', label: 'กำลังดำเนินการ', icon: 'fa-gears', g: 'g-purple', f: { status: '__inprogress' } },
+    { k: 'resolved', label: 'แก้ไขแล้ว', icon: 'fa-circle-check', g: 'g-green', f: { status: 'แก้ไขแล้ว' } },
+    { k: 'closed', label: 'ปิดงาน', icon: 'fa-lock', g: 'g-slate', f: { status: 'ปิดงาน' } },
+    { k: 'urgent', label: 'ปัญหาด่วน', icon: 'fa-triangle-exclamation', g: 'g-red', f: { status: '__urgent' }, urgent: true },
+    { k: 'today', label: 'ปัญหาวันนี้', icon: 'fa-calendar-day', g: 'g-cyan', f: { dateFrom: today, dateTo: today } },
+    { k: 'month', label: 'Ticket เดือนนี้', icon: 'fa-calendar-days', g: 'g-indigo', f: { dateFrom: today.slice(0, 8) + '01', dateTo: today } },
+    { k: 'avgResolutionText', label: 'เวลาแก้ไขเฉลี่ย', icon: 'fa-stopwatch', g: 'g-pink', small: true }
+  ];
+  const staff = A.user && A.user.isStaff;
+  $('#dashCards').innerHTML = defs.map((x, i) => `
+    <div class="stat ${staff && x.f ? 'clickable' : ''} ${x.urgent && c.urgent > 0 ? 'urgent-on' : ''}" data-card="${i}">
+      <div class="ic ${x.g}"><i class="fa-solid ${x.icon}"></i></div>
+      <div><div class="val ${x.small ? 'small-val' : ''}">${esc(c[x.k] == null ? '-' : (typeof c[x.k] === 'number' ? c[x.k].toLocaleString('th-TH') : c[x.k]))}</div><div class="lbl">${esc(x.label)}</div></div>
+    </div>`).join('');
+  $$('#dashCards [data-card]').forEach(el => {
+    const def = defs[+el.dataset.card];
+    if (staff && def.f) el.onclick = () => {
+      Object.assign(A.q, { status: '', dateFrom: '', dateTo: '', page: 1 }, def.f);
+      $('#filterForm').reset(); $('#qSize').value = String(A.q.pageSize);
+      $('#qFrom').value = A.q.dateFrom; $('#qTo').value = A.q.dateTo;
+      navigate('work');
+    };
+  });
+  $('#dashUpdated').innerHTML = `<i class="fa-solid fa-rotate me-1"></i>อัปเดตล่าสุด ${esc(d.updatedAtText)} (รีเฟรชอัตโนมัติทุก 1 นาที)`;
+
+  const up = $('#urgentPanel');
+  up.classList.toggle('d-none', !d.urgentList.length);
+  $('#urgentCount').textContent = c.urgent;
+  $('#urgentList').innerHTML = d.urgentList.map(t => `
+    <div class="urgent-item" data-open="${esc(t.TicketID)}">
+      <span class="badge-urgent ms-0 pulse-red">ด่วนมาก</span>
+      <div class="flex-grow-1" style="min-width:0">
+        <div class="fw-medium text-truncate">${esc(t.ProblemTitle)}</div>
+        <div class="small text-muted"><span class="tid">${esc(t.TicketID)}</span> • ${esc([t.Room, t.Building].filter(Boolean).join(' • '))} • รอ ${esc(t.elapsedText)}</div>
+      </div>
+      <div class="d-none d-md-block">${badgeStatus(t.Status)}</div>
+    </div>`).join('');
+
+  lineChart('chTrend', d.trend);
+  doughnutChart('chType', d.byType);
+  barChart('chBuilding', d.byBuilding, false);
+  barChart('chDept', d.byDepartment, true, '#8b5cf6');
+  doughnutChart('chStatus', d.byStatus);
+
+  const maxStaff = Math.max(1, ...d.topStaff.map(s => s.total));
+  $('#dashStaff').innerHTML = d.topStaff.length ? d.topStaff.map((s, i) => `
+    <div class="rank-item"><div class="rank-no ${i < 3 ? 'top' : ''}">${i + 1}</div>
+      <div class="flex-grow-1"><div class="d-flex justify-content-between"><span class="fw-medium">${esc(s.name)}</span><span class="small text-muted">${s.total} งาน • เสร็จ ${s.done}</span></div>
+      <div class="rank-bar"><span style="width:${Math.round(s.total / maxStaff * 100)}%"></span></div></div></div>`).join('') : emptyHtml('ยังไม่มีการมอบหมายงาน', 'fa-solid fa-user-clock');
+
+  const rec = d.recurring.concat(d.recurringLocations.map(l => ({ title: l.location, type: l.type, count: l.count, loc: true })));
+  $('#dashRecurring').innerHTML = rec.length ? rec.slice(0, 8).map((r, i) => `
+    <div class="rank-item"><div class="rank-no ${i < 3 ? 'top' : ''}">${r.count}</div>
+      <div class="flex-grow-1" style="min-width:0"><div class="fw-medium text-truncate">${r.loc ? '<i class="fa-solid fa-location-dot text-danger me-1"></i>' : ''}${esc(r.title)}</div>
+      <div class="small text-muted">${typeChip(r.type)} ${r.loc ? 'แจ้งซ้ำที่จุดเดิม' : 'ปัญหาเดิมซ้ำ'} ${r.count} ครั้ง</div></div></div>`).join('') : emptyHtml('ยังไม่พบปัญหาที่เกิดซ้ำ', 'fa-regular fa-face-smile');
+
+  $('#dashRecent').innerHTML = d.recent.length ? d.recent.map(t => `
+    <div class="recent-item" data-open="${esc(t.TicketID)}">
+      <div class="ico"><i class="${esc(typeInfo(t.ProblemType).icon)}"></i></div>
+      <div class="flex-grow-1" style="min-width:0">
+        <div class="fw-medium text-truncate">${esc(t.ProblemTitle)} ${t.isUrgent ? '<span class="badge-urgent">ด่วน</span>' : ''}</div>
+        <div class="small text-muted"><span class="tid">${esc(t.TicketID)}</span> • ${esc([t.Room, t.Building].filter(Boolean).join(' • '))} • ${esc(t.createdAtText)}</div>
+      </div>
+      <div class="text-end d-flex flex-column flex-md-row gap-1 align-items-end">${badgePrio(t.Priority)} ${badgeStatus(t.Status)}</div>
+    </div>`).join('') : emptyHtml('ยังไม่มีการแจ้งปัญหา — เริ่มแจ้งปัญหาแรกได้เลย!', 'fa-regular fa-paper-plane');
+}
+
+/* ---------------------------------- Report form ---------------------------------- */
+function prefillReporter() {
+  const saved = store.get('ithd_reporter', null);
+  const f = $('#reportForm');
+  const set = (name, v) => { if (v && !f.elements[name].value) f.elements[name].value = v; };
+  if (saved) Object.keys(saved).forEach(k => set(k, saved[k]));
+  if (A.user) {
+    set('reporterName', A.user.name);
+    set('email', A.user.email);
+    set('department', A.user.department);
+    set('phone', A.user.phone);
+    if (!A.user.guest) set('reporterId', A.user.userId);
+  }
+}
+
+function collectReport() {
+  const f = $('#reportForm');
+  const val = n => (f.elements[n] ? String(f.elements[n].value || '').trim() : '');
+  const checked = n => { const el = f.querySelector(`input[name="${n}"]:checked`); return el ? el.value : ''; };
+  return {
+    reporterId: val('reporterId'), reporterName: val('reporterName'), department: val('department'), phone: val('phone'), email: val('email'),
+    building: val('building'), floor: val('floor'), room: val('room'), installPoint: val('installPoint'), assetId: val('assetId'),
+    problemType: checked('problemType'), problemTitle: val('problemTitle'), problemDetail: val('problemDetail'), priority: checked('priority'),
+    website: val('website'),
+    attachments: A.files.map(x => ({ name: x.name, mimeType: x.mimeType, data: x.data }))
+  };
+}
+
+function validateReport(d) {
+  const f = $('#reportForm');
+  const errors = [];
+  const mark = (name, bad, label) => {
+    const el = f.elements[name];
+    if (el) el.classList.toggle('is-invalid', bad);
+    if (bad) errors.push({ el, label });
+  };
+  mark('reporterName', !d.reporterName, 'ชื่อ-นามสกุล');
+  mark('department', !d.department, 'กลุ่มสาระ/ฝ่าย/แผนก');
+  mark('phone', !/^[0-9+\-\s().]{6,20}$/.test(d.phone) || d.phone.replace(/\D/g, '').length < 6, 'เบอร์โทรศัพท์');
+  mark('email', !!d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email), 'Email');
+  mark('building', !d.building, 'อาคาร');
+  mark('room', !d.room, 'ห้อง');
+  mark('problemTitle', d.problemTitle.length < 3, 'หัวข้อปัญหา');
+  mark('problemDetail', !d.problemDetail, 'รายละเอียดปัญหา');
+  $('#detailInvalid').classList.toggle('invisible', !!d.problemDetail);
+  $('#grpType').classList.toggle('group-invalid', !d.problemType);
+  if (!d.problemType) errors.push({ el: $('#grpType'), label: 'ประเภทปัญหา' });
+  $('#grpPriority').classList.toggle('group-invalid', !d.priority);
+  if (!d.priority) errors.push({ el: $('#grpPriority'), label: 'ระดับความเร่งด่วน' });
+  return errors;
+}
+
+async function submitReport(e) {
+  e.preventDefault();
+  if (A.submitting) return;
+  const data = collectReport();
+  const errors = validateReport(data);
+  if (errors.length) {
+    errors[0].el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลให้ครบถ้วน', html: errors.map(x => `• ${esc(x.label)}`).join('<br>') });
+    return;
+  }
+  const urgent = data.priority === A.meta.urgentPriority;
+  if (urgent) {
+    const c = await Swal.fire({ icon: 'warning', title: 'ยืนยันระดับ “ด่วนมาก”', text: 'ระดับนี้จะแจ้งเตือนเจ้าหน้าที่ทันที ใช้สำหรับปัญหาที่กระทบการเรียนการสอน/การทำงานเท่านั้น', showCancelButton: true, confirmButtonText: 'ยืนยันส่ง', cancelButtonText: 'กลับไปแก้ไข' });
+    if (!c.isConfirmed) return;
+  }
+  const btn = $('#btnSubmitReport');
+  A.submitting = true;
+  setBusy(btn, true, 'กำลังส่ง...');
+  showLoading(A.files.length ? 'กำลังอัปโหลดไฟล์และบันทึกข้อมูล...' : 'กำลังบันทึกการแจ้งปัญหา...');
+  try {
+    const r = await api('createTicket', data, A.token);
+    if ($('#f_remember').checked) {
+      store.set('ithd_reporter', { reporterId: data.reporterId, reporterName: data.reporterName, department: data.department, phone: data.phone, email: data.email, building: data.building, floor: data.floor, room: data.room });
+    } else store.del('ithd_reporter');
+    const ids = store.get('ithd_my_ids', []).filter(x => x !== r.ticketId);
+    ids.unshift(r.ticketId);
+    store.set('ithd_my_ids', ids.slice(0, 20));
+    resetReportForm(false);
+    hideLoading();
+    const res = await Swal.fire({
+      icon: 'success',
+      title: '✅ แจ้งปัญหาสำเร็จ',
+      html: `<div class="swal-ticket">
+        <div class="text-muted small">Ticket ID</div>
+        <div class="big-id">${esc(r.ticketId)}</div>
+        <button type="button" class="btn btn-soft btn-sm" id="swCopy"><i class="fa-regular fa-copy me-1"></i>คัดลอก Ticket ID</button>
+        <table class="swal-table">
+          <tr><td>วันที่แจ้ง</td><td>${esc(r.createdAtText)} น.</td></tr>
+          <tr><td>ผู้แจ้ง</td><td>${esc(r.reporterName)}</td></tr>
+          <tr><td>ปัญหา</td><td>${esc(r.problemTitle)}<br><small class="text-muted">${esc(r.problemType)}</small></td></tr>
+          <tr><td>ความเร่งด่วน</td><td>${badgePrio(r.priority)}</td></tr>
+          <tr><td>สถานะ</td><td>${badgeStatus(r.status)}</td></tr>
+          ${r.attachmentCount ? `<tr><td>ไฟล์แนบ</td><td>${r.attachmentCount} ไฟล์</td></tr>` : ''}
+        </table>
+        ${r.warning ? `<div class="alert alert-warning py-2 small">${esc(r.warning)}</div>` : ''}
+        <div class="swal-note"><i class="fa-solid fa-bookmark me-1"></i>กรุณาเก็บ Ticket ID ไว้สำหรับติดตามสถานะ</div></div>`,
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-magnifying-glass-location me-1"></i> ติดตามสถานะงาน',
+      cancelButtonText: 'ปิด',
+      didOpen: () => { $('#swCopy').onclick = () => copyText(r.ticketId); }
+    });
+    if (res.isConfirmed) navigate('track', { ticketId: r.ticketId });
+  } catch (err) {
+    hideLoading();
+    handleError(err, 'แจ้งปัญหาไม่สำเร็จ');
+  } finally {
+    A.submitting = false;
+    setBusy(btn, false);
+  }
+}
+
+function resetReportForm(full) {
+  const f = $('#reportForm');
+  const keep = full ? null : ['reporterId', 'reporterName', 'department', 'phone', 'email', 'building', 'floor', 'room'].reduce((o, k) => (o[k] = f.elements[k].value, o), {});
+  f.reset();
+  if (keep && $('#f_remember').checked) Object.keys(keep).forEach(k => { f.elements[k].value = keep[k]; });
+  $$('.is-invalid', f).forEach(el => el.classList.remove('is-invalid'));
+  $('#grpType').classList.remove('group-invalid');
+  $('#grpPriority').classList.remove('group-invalid');
+  $('#detailInvalid').classList.add('invisible');
+  $('#detailCount').textContent = '0/5000';
+  A.files = [];
+  renderFiles();
+}
+
+/* ---------- Attachments (client-side resize + base64) ---------- */
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ: ' + file.name));
+    r.readAsDataURL(file);
+  });
+}
+
+function compressImage(file, maxSide, quality) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      let { width: w, height: h } = img;
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(cv.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('ไม่สามารถประมวลผลรูปภาพ ' + file.name)); };
+    img.src = url;
+  });
+}
+
+async function processFile(file) {
+  const okType = /^(image\/(png|jpe?g|gif|webp|heic|heif|bmp)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation)|application\/vnd\.ms-(excel|powerpoint)|text\/plain|text\/csv)$/;
+  if (!okType.test(file.type)) throw new Error(`ไม่รองรับไฟล์ประเภทนี้: ${file.name}`);
+  let dataUrl, mime = file.type, name = file.name;
+  if (/^image\/(jpeg|png|webp|bmp)$/.test(file.type) && file.size > 600 * 1024) {
+    dataUrl = await compressImage(file, 1600, 0.82);
+    mime = 'image/jpeg';
+    name = name.replace(/\.[^.]+$/, '') + '.jpg';
+  } else {
+    dataUrl = await readAsDataURL(file);
+  }
+  const b64 = dataUrl.split(',')[1] || '';
+  const size = Math.floor(b64.length * 3 / 4);
+  if (size > A.meta.maxFileBytes) throw new Error(`ไฟล์ ${file.name} มีขนาดเกิน ${Math.round(A.meta.maxFileBytes / 1048576)} MB`);
+  return { name, mimeType: mime, data: b64, size, preview: /^image\/(jpeg|png|gif|webp|bmp)$/.test(mime) ? dataUrl : null };
+}
+
+async function addFiles(list) {
+  const files = Array.from(list || []);
+  if (!files.length) return;
+  showLoading('กำลังเตรียมไฟล์แนบ...');
+  const errors = [];
+  try {
+    for (const file of files) {
+      if (A.files.length >= A.meta.maxFiles) { errors.push(`แนบได้สูงสุด ${A.meta.maxFiles} ไฟล์`); break; }
+      try {
+        const item = await processFile(file);
+        const total = A.files.reduce((s, f) => s + f.size, 0) + item.size;
+        if (total > A.meta.maxTotalBytes) { errors.push(`ขนาดไฟล์รวมเกิน ${Math.round(A.meta.maxTotalBytes / 1048576)} MB`); break; }
+        A.files.push(item);
+      } catch (e) { errors.push(e.message); }
+    }
+  } finally { hideLoading(); }
+  renderFiles();
+  if (errors.length) Swal.fire({ icon: 'warning', title: 'ไฟล์แนบบางไฟล์ไม่ถูกเพิ่ม', html: errors.map(esc).join('<br>') });
+}
+
+function fileIcon(mime) {
+  if (/pdf/.test(mime)) return 'fa-file-pdf text-danger';
+  if (/word/.test(mime)) return 'fa-file-word text-primary';
+  if (/sheet|excel|csv/.test(mime)) return 'fa-file-excel text-success';
+  if (/presentation|powerpoint/.test(mime)) return 'fa-file-powerpoint text-warning';
+  if (/image/.test(mime)) return 'fa-file-image';
+  return 'fa-file-lines';
+}
+
+function renderFiles() {
+  $('#fileGrid').innerHTML = A.files.map((f, i) => `
+    <div class="file-card">
+      ${f.preview ? `<img src="${f.preview}" alt="">` : `<i class="fa-solid ${fileIcon(f.mimeType)} fi"></i><div class="fname">${esc(f.name)}</div>`}
+      <button type="button" class="rm" data-rm="${i}" aria-label="ลบไฟล์"><i class="fa-solid fa-xmark"></i></button>
+      <div class="sz">${esc(fmtBytes(f.size))}</div>
+    </div>`).join('');
+}
+
+/* ---------------------------------- Track ---------------------------------- */
+async function trackTicket(verify) {
+  const input = $('#trackInput');
+  const id = input.value.trim().toUpperCase();
+  if (!isTicketId(id)) {
+    input.classList.add('is-invalid');
+    Swal.fire({ icon: 'warning', title: 'รูปแบบ Ticket ID ไม่ถูกต้อง', text: 'ตัวอย่าง: IT-20260909-0001' });
+    return;
+  }
+  input.classList.remove('is-invalid');
+  const verifyValue = verify != null ? verify : (A.track && A.track.id === id ? A.track.verify : '');
+  $('#trackResult').innerHTML = `<div class="cardx">${loaderHtml('กำลังค้นหา Ticket...')}</div>`;
+  try {
+    const d = await api('getTicketById', id, A.token, verifyValue || '');
+    A.track = { id, data: d, verify: d.verifyFailed ? '' : verifyValue };
+    renderTrack(d);
+    if (d.verifyFailed) toast('error', 'ข้อมูลยืนยันตัวตนไม่ถูกต้อง');
+  } catch (e) {
+    $('#trackResult').innerHTML = `<div class="cardx">${emptyHtml(e.message, 'fa-solid fa-magnifying-glass-minus')}</div>`;
+    if (['AUTH', 'MUST_CHANGE', 'RATE_LIMIT', 'NETWORK', 'SERVER'].includes(e.code)) handleError(e);
+  }
+}
+
+function renderTrackRecent() {
+  const ids = store.get('ithd_my_ids', []);
+  $('#trackRecent').innerHTML = ids.length ? '<small class="text-muted me-1 align-self-center">ล่าสุด:</small>' + ids.slice(0, 6).map(id => `<button type="button" class="chip-btn" data-track="${esc(id)}"><i class="fa-solid fa-ticket me-1"></i>${esc(id)}</button>`).join('') : '';
+}
+
+function stepperHtml(status) {
+  const steps = [
+    { label: 'แจ้งปัญหา', icon: 'fa-bullhorn' },
+    { label: 'รับเรื่อง', icon: 'fa-clipboard-check' },
+    { label: 'กำลังดำเนินการ', icon: 'fa-screwdriver-wrench' },
+    { label: 'แก้ไขแล้ว', icon: 'fa-circle-check' },
+    { label: 'ปิดงาน', icon: 'fa-lock' }
+  ];
+  const cur = statusInfo(status).step;
+  const pct = cur > 0 ? ((cur - 1) / (steps.length - 1)) * 84 : 0;
+  return `<div class="stepper"><div class="bar" style="width:${pct}%"></div>${steps.map((s, i) => `
+    <div class="step ${i + 1 <= cur ? 'done' : ''} ${i + 1 === cur ? 'current' : ''}"><div class="dot"><i class="fa-solid ${s.icon}"></i></div>${esc(s.label)}</div>`).join('')}</div>`;
+}
+
+function timelineHtml(items) {
+  if (!items || !items.length) return emptyHtml('ยังไม่มีประวัติการดำเนินงาน', 'fa-solid fa-timeline');
+  return `<div class="timeline">${items.map(it => {
+    let icon, color;
+    if (it.kind === 'worklog') { icon = 'fa-solid fa-wrench'; color = '#0ea5e9'; }
+    else if (it.action === 'แจ้งปัญหา') { icon = 'fa-solid fa-bullhorn'; color = '#6366f1'; }
+    else if (it.action === 'มอบหมายงาน') { icon = 'fa-solid fa-user-gear'; color = '#0891b2'; }
+    else if (/^ประเมิน/.test(it.action)) { icon = 'fa-solid fa-star'; color = '#eab308'; }
+    else if (/^แก้ไขข้อมูล/.test(it.action)) { icon = 'fa-solid fa-pen'; color = '#64748b'; }
+    else if (/^แนบไฟล์/.test(it.action)) { icon = 'fa-solid fa-paperclip'; color = '#64748b'; }
+    else { const s = statusInfo(it.to); icon = s.icon; color = s.color; }
+    const time = String(it.time || '').slice(11, 16);
+    const date = String(it.timeText || '').slice(0, 10);
+    const change = it.kind === 'history' && it.from && it.to && it.from !== it.to ? `<div class="mt-1 d-flex flex-wrap gap-1 align-items-center">${badgeStatus(it.from)}<i class="fa-solid fa-arrow-right-long text-muted small"></i>${badgeStatus(it.to)}</div>` : '';
+    const extra = it.kind === 'worklog'
+      ? `${it.parts ? `<div class="small mt-1"><i class="fa-solid fa-microchip me-1 text-muted"></i>อุปกรณ์: ${esc(it.parts)}</div>` : ''}${parseFloat(it.cost) > 0 ? `<div class="small"><i class="fa-solid fa-coins me-1 text-muted"></i>ค่าใช้จ่าย: ${money(it.cost)} บาท</div>` : ''}${it.extraNote ? `<div class="small text-muted">หมายเหตุ: ${esc(it.extraNote)}</div>` : ''}`
+      : '';
+    return `<div class="tl-item">
+      <div class="tl-time"><b>${esc(time)}</b><small>${esc(date)}</small></div>
+      <div class="tl-dot" style="--c:${color}"><i class="${esc(icon)}"></i></div>
+      <div class="tl-body"><div class="tl-title">${esc(it.action)}</div>
+        <div class="tl-meta"><i class="fa-regular fa-user me-1"></i>${esc(it.by || '-')}</div>
+        ${change}${it.note ? `<div class="tl-note">${esc(it.note)}</div>` : ''}${extra}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function attachmentsHtml(list) {
+  if (!list || !list.length) return '';
+  return `<div class="att-grid">${list.map((a, i) => {
+    const url = safeDriveUrl(a.url);
+    if (!url) return '';
+    const thumb = a.id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(a.id)}&sz=w400` : '';
+    return `<a class="att" href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="${thumb ? `background-image:url('${esc(thumb)}')` : ''}"><span><i class="fa-solid fa-up-right-from-square me-1"></i>ไฟล์ ${i + 1}</span></a>`;
+  }).join('')}</div>`;
+}
+
+function ticketInfoGrid(t, full) {
+  const items = [
+    ['fa-calendar', 'วันที่ / เวลาแจ้ง', t.createdAtText ? t.createdAtText + ' น.' : '-'],
+    ['fa-user', 'ผู้แจ้ง', t.ReporterName + (full && t.ReporterID ? ` (${t.ReporterID})` : '')],
+    ['fa-sitemap', 'กลุ่มสาระ / ฝ่าย / แผนก', t.Department],
+    ['fa-location-dot', 'สถานที่', [t.Room, t.Building, t.Floor ? 'ชั้น ' + t.Floor : ''].filter(Boolean).join(' • ')],
+    ['fa-crosshairs', 'จุดติดตั้ง', t.InstallPoint],
+    ['fa-layer-group', 'ประเภทปัญหา', t.ProblemType],
+    ['fa-user-gear', 'เจ้าหน้าที่รับผิดชอบ', t.AssignedTo || 'ยังไม่มอบหมาย'],
+    ['fa-stopwatch', t.durationText ? 'ระยะเวลาแก้ไข' : 'ระยะเวลาที่ผ่านไป', t.durationText || t.elapsedText]
+  ];
+  if (full) {
+    items.push(['fa-phone', 'เบอร์โทรศัพท์', t.Phone], ['fa-envelope', 'Email', t.Email], ['fa-barcode', 'หมายเลขครุภัณฑ์', t.AssetID]);
+    if (parseFloat(t.Cost) > 0) items.push(['fa-coins', 'ค่าใช้จ่ายรวม', money(t.Cost) + ' บาท']);
+  }
+  return `<div class="kv">${items.filter(x => x[2]).map(x => `<div class="item"><div class="k"><i class="fa-solid ${x[0]}"></i>${esc(x[1])}</div><div class="v">${esc(x[2])}</div></div>`).join('')}</div>`;
+}
+
+function resolutionHtml(t) {
+  if (!t.Resolution && !t.Result) return '';
+  return `<div class="section-label"><i class="fa-solid fa-flag-checkered"></i>ผลการดำเนินงาน</div>
+    <div class="kv">
+      ${t.Resolution ? `<div class="item"><div class="k">วิธีการแก้ไข</div><div class="v pre">${esc(t.Resolution)}</div></div>` : ''}
+      ${t.RootCause ? `<div class="item"><div class="k">สาเหตุของปัญหา</div><div class="v pre">${esc(t.RootCause)}</div></div>` : ''}
+      ${t.Result ? `<div class="item"><div class="k">ผลการดำเนินงาน</div><div class="v">${esc(t.Result)}</div></div>` : ''}
+      ${t.CloseNote ? `<div class="item"><div class="k">หมายเหตุ</div><div class="v pre">${esc(t.CloseNote)}</div></div>` : ''}
+      ${t.ClosedBy ? `<div class="item"><div class="k">ปิดงานโดย</div><div class="v">${esc(t.ClosedBy)} • ${esc(t.closedAtText)}</div></div>` : ''}
+    </div>`;
+}
+
+function renderTrack(d) {
+  const t = d.ticket;
+  const full = d.access !== 'public';
+  const cancelled = t.Status === 'ยกเลิก';
+  let rating = '';
+  if (t.Rating) {
+    rating = `<div class="cardx mt-3"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-star"></i></span>ผลการประเมินความพึงพอใจ</div>
+      <div class="stars-ro fs-4">${stars(t.Rating)}</div><div class="text-muted">${esc(t.Rating)}/5 ${t.Feedback ? '— ' + esc(t.Feedback) : ''}</div></div>`;
+  } else if (d.canRate && !(d.access === 'staff' && d.needVerify)) {
+    rating = `<div class="cardx mt-3" id="rateBox"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-star"></i></span>ประเมินความพึงพอใจ</div>
+      <p class="text-muted mb-2">งานของคุณได้รับการแก้ไขแล้ว กรุณาให้คะแนนการให้บริการของเรา</p>
+      <div class="stars mb-2" id="rateStars">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-v="${n}" aria-label="${n} ดาว">★</button>`).join('')}</div>
+      <div class="small text-muted mb-2" id="rateText">แตะดาวเพื่อให้คะแนน</div>
+      <textarea class="form-control mb-2" id="rateFeedback" maxlength="1000" placeholder="ความคิดเห็นเพิ่มเติม (ถ้ามี)"></textarea>
+      ${d.needVerify && !A.track.verify ? `<input class="form-control mb-2" id="rateVerify" placeholder="ยืนยันตัวตน: เบอร์โทรศัพท์ หรือ Email ที่ใช้แจ้งปัญหา">` : ''}
+      <button class="btn btn-grad" type="button" id="btnRate"><i class="fa-solid fa-paper-plane me-1"></i> ส่งผลการประเมิน</button></div>`;
+  }
+  const verifyBox = d.access === 'public' ? `<div class="cardx mt-3"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-user-shield"></i></span>ยืนยันตัวตนเพื่อดูรายละเอียดเพิ่มเติม</div>
+    <form class="row g-2" id="verifyForm"><div class="col-md-8"><input class="form-control" id="verifyInput" placeholder="เบอร์โทรศัพท์ หรือ Email ที่ใช้แจ้งปัญหา" autocomplete="off"></div>
+    <div class="col-md-4 d-grid"><button class="btn btn-soft" type="submit"><i class="fa-solid fa-unlock me-1"></i> ยืนยัน</button></div></form>
+    <small class="text-muted d-block mt-2">ข้อมูลส่วนบุคคลและรายละเอียดปัญหาจะแสดงเฉพาะผู้แจ้งและเจ้าหน้าที่เท่านั้น</small></div>` : '';
+
+  $('#trackResult').innerHTML = `
+    <div class="ticket-head mb-3">
+      <div class="d-flex flex-wrap justify-content-between gap-2 position-relative" style="z-index:1">
+        <div><div class="small opacity-75">Ticket ID</div><div class="id">${esc(t.TicketID)} <button class="btn btn-sm btn-glass ms-1" type="button" id="btnCopyTid" title="คัดลอก"><i class="fa-regular fa-copy"></i></button></div>
+          <div class="fw-medium mt-1">${esc(t.ProblemTitle)}</div></div>
+        <div class="d-flex flex-column align-items-md-end gap-2">${badgeStatus(t.Status)}${badgePrio(t.Priority)}</div>
+      </div>
+    </div>
+    <div class="cardx">
+      ${cancelled ? '<div class="alert alert-danger d-flex align-items-center gap-2 mb-0"><i class="fa-solid fa-ban"></i>Ticket นี้ถูกยกเลิกแล้ว</div>' : stepperHtml(t.Status)}
+      ${d.access === 'staff' ? `<div class="text-end mt-2"><button class="btn btn-grad btn-sm" type="button" data-open="${esc(t.TicketID)}"><i class="fa-solid fa-screwdriver-wrench me-1"></i> จัดการ Ticket นี้</button></div>` : ''}
+    </div>
+    <div class="row g-3 mt-0">
+      <div class="col-lg-6">
+        <div class="cardx h-100">
+          <div class="cardx-title"><span class="ic"><i class="fa-solid fa-circle-info"></i></span>รายละเอียด Ticket</div>
+          ${ticketInfoGrid(t, full)}
+          ${full && t.ProblemDetail ? `<div class="section-label"><i class="fa-solid fa-align-left"></i>รายละเอียดปัญหา</div><div class="pre">${esc(t.ProblemDetail)}</div>` : ''}
+          ${full && t.attachments.length ? `<div class="section-label"><i class="fa-solid fa-paperclip"></i>ไฟล์แนบ</div>${attachmentsHtml(t.attachments)}` : (t.attachmentCount && !full ? `<div class="small text-muted mt-3"><i class="fa-solid fa-paperclip me-1"></i>มีไฟล์แนบ ${t.attachmentCount} ไฟล์ (ยืนยันตัวตนเพื่อดู)</div>` : '')}
+          ${full ? resolutionHtml(t) : (t.Result ? `<div class="section-label"><i class="fa-solid fa-flag-checkered"></i>ผลการดำเนินงาน</div><div>${esc(t.Result)}</div>` : '')}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="cardx h-100">
+          <div class="cardx-title"><span class="ic"><i class="fa-solid fa-timeline"></i></span>Timeline การดำเนินงาน</div>
+          ${timelineHtml(d.timeline)}
+        </div>
+      </div>
+    </div>
+    ${rating}${verifyBox}`;
+
+  $('#btnCopyTid').onclick = () => copyText(t.TicketID);
+  const vf = $('#verifyForm');
+  if (vf) vf.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = $('#verifyInput').value.trim();
+    if (!v) { $('#verifyInput').classList.add('is-invalid'); return; }
+    trackTicket(v);
+  });
+  const rs = $('#rateStars');
+  if (rs) {
+    let val = 0;
+    const labels = ['', 'ควรปรับปรุง', 'พอใช้', 'ดี', 'ดีมาก', 'ดีเยี่ยม'];
+    const paint = n => { $$('button', rs).forEach(b => b.classList.toggle('on', +b.dataset.v <= n)); $('#rateText').textContent = n ? `${n} ดาว — ${labels[n]}` : 'แตะดาวเพื่อให้คะแนน'; };
+    $$('button', rs).forEach(b => {
+      b.onclick = () => { val = +b.dataset.v; paint(val); };
+      b.onmouseenter = () => paint(+b.dataset.v);
+      b.onmouseleave = () => paint(val);
+    });
+    $('#btnRate').onclick = async ev => {
+      if (!val) { Swal.fire({ icon: 'warning', title: 'กรุณาเลือกคะแนน 1–5 ดาว' }); return; }
+      const vInput = $('#rateVerify');
+      const verify = vInput ? vInput.value.trim() : (A.track.verify || '');
+      if (vInput && !verify) { vInput.classList.add('is-invalid'); vInput.focus(); return; }
+      const btn = ev.currentTarget;
+      setBusy(btn, true, 'กำลังส่ง...');
+      try {
+        await api('submitRating', t.TicketID, val, $('#rateFeedback').value.trim(), verify, A.token);
+        Swal.fire({ icon: 'success', title: 'ขอบคุณสำหรับการประเมิน', text: 'ความคิดเห็นของคุณช่วยให้เราพัฒนาบริการได้ดียิ่งขึ้น', timer: 2500, showConfirmButton: false });
+        trackTicket(verify);
+      } catch (e) { handleError(e, 'ส่งผลการประเมินไม่สำเร็จ'); setBusy(btn, false); }
+    };
+  }
+}
+
+/* ---------------------------------- My tickets ---------------------------------- */
+function renderMyTicketsPage() {
+  if (A.user) loadMyTickets(1);
+  else if (A.my.key) loadMyTickets(A.my.page);
+  else {
+    const saved = store.get('ithd_reporter', null);
+    if (saved) { $('#myKey').value = $('#myKey').value || saved.reporterId || saved.email || ''; $('#myPhone').value = $('#myPhone').value || saved.phone || ''; }
+    $('#myList').innerHTML = emptyHtml('กรอกรหัสผู้แจ้ง/อีเมล และเบอร์โทรศัพท์ เพื่อค้นหา Ticket ของคุณ');
+    $('#myPager').innerHTML = '';
+  }
+  renderDeviceTickets();
+}
+
+async function loadMyTickets(page) {
+  A.my.page = page || 1;
+  $('#myList').innerHTML = loaderHtml('กำลังโหลด Ticket ของคุณ...');
+  $('#myPager').innerHTML = '';
+  try {
+    const d = await api('getMyTickets', { page: A.my.page, pageSize: 10, reporterKey: A.my.key, phone: A.my.phone, status: A.user ? $('#myStatus').value : '' }, A.token);
+    $('#myList').innerHTML = d.items.length ? d.items.map(myCardHtml).join('') : emptyHtml(d.mode === 'verify' ? 'ไม่พบ Ticket ที่ตรงกับข้อมูลที่กรอก' : 'คุณยังไม่มีรายการแจ้งปัญหา', 'fa-regular fa-folder-open');
+    renderPager($('#myPager'), d, p => loadMyTickets(p));
+  } catch (e) {
+    $('#myList').innerHTML = emptyHtml(e.message, 'fa-solid fa-circle-exclamation');
+    if (['AUTH', 'MUST_CHANGE'].includes(e.code)) handleError(e);
+  }
+}
+
+function myCardHtml(t) {
+  return `<div class="my-card" data-open="${esc(t.TicketID)}">
+    <div class="ico"><i class="${esc(typeInfo(t.ProblemType).icon)}"></i></div>
+    <div class="flex-grow-1" style="min-width:0">
+      <div class="fw-medium text-truncate">${esc(t.ProblemTitle)} ${t.isUrgent ? '<span class="badge-urgent">ด่วน</span>' : ''}</div>
+      <div class="small text-muted"><span class="tid">${esc(t.TicketID)}</span> • ${esc(t.createdAtText || '')} • ${esc([t.Room, t.Building].filter(Boolean).join(' • '))}</div>
+      <div class="d-flex flex-wrap gap-1 mt-1">${badgeStatus(t.Status)} ${badgePrio(t.Priority)} ${t.AssignedTo ? `<span class="small text-muted align-self-center ms-1"><i class="fa-solid fa-user-gear me-1"></i>${esc(t.AssignedTo)}</span>` : ''}</div>
+    </div>
+    <i class="fa-solid fa-chevron-right text-muted"></i></div>`;
+}
+
+async function renderDeviceTickets() {
+  const ids = store.get('ithd_my_ids', []);
+  const el = $('#myDeviceList');
+  if (!ids.length) { el.innerHTML = emptyHtml('ยังไม่มี Ticket ที่แจ้งจากอุปกรณ์นี้', 'fa-solid fa-mobile-screen'); return; }
+  el.innerHTML = loaderHtml();
+  try {
+    const list = await api('getTicketsBrief', ids);
+    el.innerHTML = list.length ? list.map(t => `<div class="my-card" data-track="${esc(t.TicketID)}">
+      <div class="ico"><i class="${esc(typeInfo(t.ProblemType).icon)}"></i></div>
+      <div class="flex-grow-1" style="min-width:0"><div class="fw-medium text-truncate">${esc(t.ProblemTitle)}</div>
+      <div class="small text-muted"><span class="tid">${esc(t.TicketID)}</span> • ${esc(t.createdAtText)}</div></div>
+      <div class="d-flex flex-column gap-1 align-items-end">${badgeStatus(t.Status)}</div></div>`).join('') : emptyHtml('ไม่พบข้อมูล Ticket', 'fa-regular fa-folder-open');
+  } catch (e) { el.innerHTML = emptyHtml(e.message, 'fa-solid fa-circle-exclamation'); }
+}
+
+function renderPager(el, d, onPage) {
+  if (!d || d.total === 0) { el.innerHTML = ''; return; }
+  const start = (d.page - 1) * d.pageSize + 1, end = Math.min(d.total, d.page * d.pageSize);
+  const pages = [];
+  const from = Math.max(1, d.page - 2), to = Math.min(d.totalPages, d.page + 2);
+  if (from > 1) pages.push(1);
+  if (from > 2) pages.push('…');
+  for (let p = from; p <= to; p++) pages.push(p);
+  if (to < d.totalPages - 1) pages.push('…');
+  if (to < d.totalPages) pages.push(d.totalPages);
+  el.innerHTML = `<div class="pager"><small class="text-muted">แสดง ${start}–${end} จาก ${d.total.toLocaleString('th-TH')} รายการ</small>
+    <div class="pages"><button type="button" data-p="${d.page - 1}" ${d.page <= 1 ? 'disabled' : ''} aria-label="ก่อนหน้า"><i class="fa-solid fa-chevron-left"></i></button>
+    ${pages.map(p => p === '…' ? '<button type="button" disabled>…</button>' : `<button type="button" data-p="${p}" class="${p === d.page ? 'active' : ''}">${p}</button>`).join('')}
+    <button type="button" data-p="${d.page + 1}" ${d.page >= d.totalPages ? 'disabled' : ''} aria-label="ถัดไป"><i class="fa-solid fa-chevron-right"></i></button></div></div>`;
+  $$('[data-p]', el).forEach(b => b.onclick = () => { if (!b.disabled) { onPage(+b.dataset.p); el.scrollIntoView({ behavior: 'smooth', block: 'end' }); } });
+}
+
+/* ---------------------------------- IT Work ---------------------------------- */
+function readFilters() {
+  Object.assign(A.q, {
+    search: $('#qSearch').value.trim(), type: $('#qType').value, priority: $('#qPriority').value,
+    reporter: $('#qReporter').value.trim(), building: $('#qBuilding').value.trim(), assignedTo: $('#qAssigned').value,
+    dateFrom: $('#qFrom').value, dateTo: $('#qTo').value, sort: $('#qSort').value, pageSize: +$('#qSize').value || 20
+  });
+}
+
+async function loadTickets(silent) {
+  readFilters();
+  if (!silent) $('#workBody').innerHTML = `<tr><td colspan="8">${loaderHtml('กำลังโหลดรายการ Ticket...')}</td></tr>`;
+  try {
+    const d = await api('getTickets', A.q, A.token);
+    renderWork(d);
+  } catch (e) {
+    $('#workBody').innerHTML = `<tr><td colspan="8">${emptyHtml(e.message, 'fa-solid fa-circle-exclamation')}</td></tr>`;
+    handleError(e);
+  }
+}
+
+function renderWork(d) {
+  const c = d.statusCounts;
+  const tabs = [{ v: '', label: 'ทั้งหมด', n: c.all }, { v: '__urgent', label: '🔴 ด่วนมาก (ค้าง)', n: c.urgent }, { v: '__open', label: 'งานค้างทั้งหมด', n: A.meta.statuses.slice(0, 4).reduce((s, x) => s + (c[x.value] || 0), 0) }]
+    .concat(A.meta.statuses.map(s => ({ v: s.value, label: `${s.emoji} ${s.value}`, n: c[s.value] || 0 })));
+  if (['__pending', '__inprogress'].includes(A.q.status)) tabs.splice(3, 0, { v: A.q.status, label: A.q.status === '__pending' ? 'รอดำเนินการ' : 'กำลังดำเนินการ (รวม)', n: d.total });
+  $('#statusTabs').innerHTML = tabs.map(t => `<button type="button" data-st="${esc(t.v)}" class="${A.q.status === t.v ? 'active' : ''}">${esc(t.label)} <span class="n">${t.n}</span></button>`).join('');
+
+  const cur = $('#qAssigned').value;
+  const names = Array.from(new Set((A.settings.ASSIGNEES || []).concat(d.assignees)));
+  $('#qAssigned').innerHTML = '<option value="">ผู้รับผิดชอบทั้งหมด</option><option value="__none">— ยังไม่มอบหมาย —</option>' + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  $('#qAssigned').value = cur;
+  $('#dlBuildingsFilter').innerHTML = Array.from(new Set((A.settings.BUILDINGS || []).concat(d.buildings))).map(b => `<option value="${esc(b)}">`).join('');
+  $('#workSummary').textContent = `พบ ${d.total.toLocaleString('th-TH')} รายการ`;
+
+  $('#workBody').innerHTML = d.items.length ? d.items.map(t => `
+    <tr class="${t.isUrgent ? 'row-urgent' : ''}" data-id="${esc(t.TicketID)}">
+      <td class="td-first" data-label="Ticket"><span class="tid">${esc(t.TicketID)}</span>${t.isUrgent ? '<span class="badge-urgent pulse-red">ด่วนมาก</span>' : ''}<div class="small text-muted">${esc(t.createdAtText)} น.</div></td>
+      <td data-label="ผู้แจ้ง"><div>${esc(t.ReporterName)}<div class="small text-muted">${esc(t.Department)}</div></div></td>
+      <td data-label="สถานที่"><div>${esc(t.Room)}<div class="small text-muted">${esc([t.Building, t.Floor ? 'ชั้น ' + t.Floor : ''].filter(Boolean).join(' • '))}</div></div></td>
+      <td data-label="ปัญหา"><div><div class="fw-medium">${esc(t.ProblemTitle)}</div>${typeChip(t.ProblemType)} ${t.hasAttachment ? '<i class="fa-solid fa-paperclip text-muted small ms-1" title="มีไฟล์แนบ"></i>' : ''}</div></td>
+      <td data-label="ความเร่งด่วน">${badgePrio(t.Priority)}</td>
+      <td data-label="สถานะ">${badgeStatus(t.Status)}</td>
+      <td data-label="ผู้รับผิดชอบ"><span>${t.AssignedTo ? esc(t.AssignedTo) : '<span class="text-muted small">ยังไม่มอบหมาย</span>'}</span></td>
+      <td class="td-action text-end"><button class="btn btn-sm btn-soft" type="button"><i class="fa-solid fa-sliders me-1"></i>จัดการ</button></td>
+    </tr>`).join('') : `<tr><td colspan="8">${emptyHtml('ไม่พบ Ticket ตามเงื่อนไขที่เลือก', 'fa-solid fa-inbox')}</td></tr>`;
+  renderPager($('#workPager'), d, p => { A.q.page = p; loadTickets(false); });
+}
+
+/* ---------------------------------- Ticket modal ---------------------------------- */
+async function openTicketModal(id) {
+  A.modal.id = id;
+  A.modal.tab = 'info';
+  if (!A.modal.instance) A.modal.instance = new bootstrap.Modal($('#ticketModal'), { focus: false });
+  $('#tmHead').innerHTML = `<div class="small opacity-75">Ticket</div><div class="fs-5 fw-semibold">${esc(id)}</div>`;
+  $('#tmBody').innerHTML = loaderHtml('กำลังโหลดรายละเอียด...');
+  A.modal.instance.show();
+  await reloadModal();
+}
+
+async function reloadModal() {
+  try {
+    const d = await api('getTicketById', A.modal.id, A.token, '');
+    if (d.access !== 'staff') { A.modal.instance.hide(); navigate('track', { ticketId: A.modal.id }); return; }
+    A.modal.data = d;
+    renderModal(d);
+  } catch (e) {
+    $('#tmBody').innerHTML = emptyHtml(e.message, 'fa-solid fa-circle-exclamation');
+    if (['AUTH', 'MUST_CHANGE'].includes(e.code)) { A.modal.instance.hide(); handleError(e); }
+  }
+}
+
+function renderModal(d) {
+  const t = d.ticket;
+  const final = ['ปิดงาน', 'ยกเลิก'].includes(t.Status);
+  const isAdmin = A.user && A.user.isAdmin;
+  $('#tmHead').innerHTML = `<div class="d-flex flex-wrap align-items-center gap-2"><span class="fs-5 fw-semibold">${esc(t.TicketID)}</span>${badgeStatus(t.Status)}${badgePrio(t.Priority)}</div>
+    <div class="mt-1 fw-medium">${esc(t.ProblemTitle)}</div><div class="small opacity-75">${esc(t.createdAtText)} น. • ${esc(t.ReporterName)} • ${esc([t.Room, t.Building].filter(Boolean).join(' • '))}</div>`;
+  const tabs = [['info', 'fa-circle-info', 'รายละเอียด'], ['action', 'fa-bolt', 'ดำเนินการ'], ['log', 'fa-wrench', `Work Log (${d.workLogs.length})`], ['close', 'fa-flag-checkered', 'ปิดงาน'], ['edit', 'fa-pen', 'แก้ไขข้อมูล'], ['timeline', 'fa-timeline', 'Timeline']];
+  const statusOpts = A.meta.statuses.filter(s => s.value !== 'ปิดงาน' && s.value !== t.Status).map(s => `<option value="${esc(s.value)}">${s.emoji} ${esc(s.value)}</option>`).join('');
+  const assignOpts = d.assignees.map(n => `<option value="${esc(n)}" ${n === t.AssignedTo ? 'selected' : ''}>${esc(n)}</option>`).join('');
+  const lockMsg = final && !isAdmin ? '<div class="alert alert-secondary small"><i class="fa-solid fa-lock me-1"></i>Ticket นี้ปิด/ยกเลิกแล้ว เฉพาะ Admin เท่านั้นที่เปิดงานใหม่หรือแก้ไขได้</div>' : '';
+  const logsHtml = d.workLogs.length ? d.workLogs.slice().reverse().map(l => `
+    <div class="log-item"><div class="d-flex justify-content-between flex-wrap gap-1"><span class="fw-medium"><i class="fa-regular fa-user me-1"></i>${esc(l.Staff)}</span><small class="text-muted">${esc(l.dateTimeText)} น.</small></div>
+    <div class="pre mt-1">${esc(l.Action)}</div>
+    ${l.Parts ? `<div class="small mt-1"><i class="fa-solid fa-microchip me-1 text-muted"></i>อุปกรณ์ที่เปลี่ยน: ${esc(l.Parts)}</div>` : ''}
+    ${parseFloat(l.Cost) > 0 ? `<div class="small"><i class="fa-solid fa-coins me-1 text-muted"></i>ค่าใช้จ่าย: ${money(l.Cost)} บาท</div>` : ''}
+    ${l.Note ? `<div class="small text-muted">หมายเหตุ: ${esc(l.Note)}</div>` : ''}</div>`).join('') : emptyHtml('ยังไม่มีบันทึกการดำเนินงาน', 'fa-solid fa-clipboard-list');
+  const typeOpts = A.meta.types.map(x => `<option ${x.value === t.ProblemType ? 'selected' : ''}>${esc(x.value)}</option>`).join('');
+  const prioOpts = A.meta.priorities.map(x => `<option value="${esc(x.value)}" ${x.value === t.Priority ? 'selected' : ''}>${x.emoji} ${esc(x.label)}</option>`).join('');
+  const resultOpts = A.meta.results.map(x => `<option>${esc(x)}</option>`).join('');
+  const ef = (id, label, val, attrs) => `<div class="col-md-6"><label class="form-label" for="ef_${id}">${label}</label><input class="form-control" id="ef_${id}" value="${esc(val || '')}" ${attrs || ''}></div>`;
+
+  $('#tmBody').innerHTML = `
+    <div class="nav-pills-x" id="tmTabs">${tabs.map(x => `<button type="button" data-tab="${x[0]}" class="${A.modal.tab === x[0] ? 'active' : ''}"><i class="fa-solid ${x[1]} me-1"></i>${esc(x[2])}</button>`).join('')}</div>
+
+    <div class="tm-pane" data-pane="info">
+      ${ticketInfoGrid(t, true)}
+      <div class="section-label"><i class="fa-solid fa-align-left"></i>รายละเอียดปัญหา</div>
+      <div class="pre">${esc(t.ProblemDetail || '-')}</div>
+      <div class="section-label"><i class="fa-solid fa-paperclip"></i>ไฟล์แนบ / รูปภาพ</div>
+      ${t.attachments.length ? attachmentsHtml(t.attachments) : '<div class="text-muted small">ไม่มีไฟล์แนบ</div>'}
+      <div class="mt-2"><label class="btn btn-soft btn-sm mb-0"><i class="fa-solid fa-upload me-1"></i>แนบไฟล์เพิ่มเติม<input type="file" class="d-none" id="mUpload" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"></label></div>
+      <div class="section-label"><i class="fa-solid fa-clock"></i>เวลาดำเนินการ</div>
+      <div class="kv">
+        ${[['รับเรื่อง', t.acceptedAtText], ['มอบหมายงาน', t.assignedAtText], ['เริ่มดำเนินการ', t.startedAtText], ['แก้ไขเสร็จ', t.resolvedAtText], ['ปิดงาน', t.closedAtText], ['อัปเดตล่าสุด', t.lastUpdatedText]]
+          .map(x => `<div class="item"><div class="k">${esc(x[0])}</div><div class="v">${x[1] ? esc(x[1]) + ' น.' : '<span class="text-muted">-</span>'}</div></div>`).join('')}
+      </div>
+      ${resolutionHtml(t)}
+      ${t.Rating ? `<div class="section-label"><i class="fa-solid fa-star"></i>ความพึงพอใจ</div><div class="stars-ro">${stars(t.Rating)}</div><div class="text-muted small">${esc(t.Rating)}/5 ${t.Feedback ? '— ' + esc(t.Feedback) : ''}</div>` : ''}
+    </div>
+
+    <div class="tm-pane" data-pane="action">
+      ${lockMsg}
+      ${t.Status === 'รอรับเรื่อง' ? `<div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 justify-content-between"><span><i class="fa-solid fa-bell me-1"></i>Ticket นี้ยังไม่มีผู้รับเรื่อง</span>
+        <button class="btn btn-grad" type="button" data-act="accept"><i class="fa-solid fa-hand me-1"></i> รับเรื่อง (รับงานนี้)</button></div>` : ''}
+      <div class="row g-3">
+        <div class="col-md-6"><div class="action-card">
+          <h6><i class="fa-solid fa-user-gear text-primary"></i>มอบหมายผู้รับผิดชอบ</h6>
+          <label class="form-label small" for="mAssign">ผู้รับผิดชอบ</label>
+          <select class="form-select mb-2" id="mAssign" ${final ? 'disabled' : ''}><option value="">— เลือกผู้รับผิดชอบ —</option>${assignOpts}</select>
+          <label class="form-label small" for="mAssignNote">หมายเหตุ</label>
+          <textarea class="form-control mb-2" id="mAssignNote" rows="2" maxlength="1000" ${final ? 'disabled' : ''}></textarea>
+          <button class="btn btn-grad w-100" type="button" data-act="assign" ${final ? 'disabled' : ''}><i class="fa-solid fa-user-check me-1"></i> มอบหมายงาน</button>
+        </div></div>
+        <div class="col-md-6"><div class="action-card">
+          <h6><i class="fa-solid fa-arrows-rotate text-primary"></i>เปลี่ยนสถานะ</h6>
+          <label class="form-label small" for="mStatus">สถานะใหม่ (ปัจจุบัน: ${esc(t.Status)})</label>
+          <select class="form-select mb-2" id="mStatus" ${final && !isAdmin ? 'disabled' : ''}><option value="">— เลือกสถานะ —</option>${statusOpts}</select>
+          <label class="form-label small" for="mStatusNote">หมายเหตุ</label>
+          <textarea class="form-control mb-2" id="mStatusNote" rows="2" maxlength="1000" placeholder="เช่น กำลังตรวจสอบอุปกรณ์" ${final && !isAdmin ? 'disabled' : ''}></textarea>
+          <button class="btn btn-grad w-100" type="button" data-act="status" ${final && !isAdmin ? 'disabled' : ''}><i class="fa-solid fa-floppy-disk me-1"></i> บันทึกสถานะ</button>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="tm-pane" data-pane="log">
+      ${t.Status !== 'ยกเลิก' ? `<div class="action-card mb-3">
+        <h6><i class="fa-solid fa-plus text-primary"></i>เพิ่มบันทึกการดำเนินงาน (Work Log)</h6>
+        <label class="form-label small req" for="wlAction">รายละเอียดการดำเนินการ</label>
+        <textarea class="form-control mb-2" id="wlAction" rows="3" maxlength="2000" placeholder="เช่น ตรวจสอบเครื่องคอมพิวเตอร์แล้ว พบปัญหา RAM ดำเนินการเปลี่ยน RAM ทดสอบระบบเรียบร้อย"></textarea>
+        <div class="row g-2">
+          <div class="col-md-5"><label class="form-label small" for="wlParts">อุปกรณ์ที่เปลี่ยน</label><input class="form-control" id="wlParts" maxlength="500" placeholder="เช่น RAM DDR4 8GB"></div>
+          <div class="col-md-3"><label class="form-label small" for="wlCost">ค่าใช้จ่าย (บาท)</label><input class="form-control" id="wlCost" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+          <div class="col-md-4"><label class="form-label small" for="wlNote">หมายเหตุ</label><input class="form-control" id="wlNote" maxlength="1000"></div>
+        </div>
+        ${['รอรับเรื่อง', 'รับเรื่องแล้ว'].includes(t.Status) ? '<div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="wlProgress" checked><label class="form-check-label small" for="wlProgress">เปลี่ยนสถานะเป็น “กำลังดำเนินการ” อัตโนมัติ</label></div>' : ''}
+        <div class="text-end mt-2"><button class="btn btn-grad" type="button" data-act="worklog"><i class="fa-solid fa-floppy-disk me-1"></i> บันทึก Work Log</button></div>
+      </div>` : ''}
+      <div class="d-flex justify-content-between align-items-center mb-2"><span class="fw-semibold">ประวัติการดำเนินงาน</span>${parseFloat(t.Cost) > 0 ? `<span class="badge bg-light text-dark border">รวมค่าใช้จ่าย ${money(t.Cost)} บาท</span>` : ''}</div>
+      ${logsHtml}
+    </div>
+
+    <div class="tm-pane" data-pane="close">
+      ${final ? (t.Status === 'ปิดงาน' ? `<div class="alert alert-success"><i class="fa-solid fa-circle-check me-1"></i>ปิดงานแล้วเมื่อ ${esc(t.closedAtText)} น. โดย ${esc(t.ClosedBy || '-')}</div>${resolutionHtml(t)}` : '<div class="alert alert-danger">Ticket นี้ถูกยกเลิกแล้ว</div>') : `
+      <div class="alert alert-info small"><i class="fa-solid fa-circle-info me-1"></i>กรอกข้อมูลการแก้ไขให้ครบถ้วนก่อนปิดงาน ระบบจะแจ้งเตือนผ่าน Telegram และ Google Chat และเปิดให้ผู้แจ้งประเมินความพึงพอใจ</div>
+      <label class="form-label req" for="clResolution">วิธีการแก้ไข</label>
+      <textarea class="form-control mb-2" id="clResolution" rows="3" maxlength="2000" placeholder="เช่น เปลี่ยน Power Supply ใหม่"></textarea>
+      <label class="form-label req" for="clRoot">สาเหตุของปัญหา</label>
+      <textarea class="form-control mb-2" id="clRoot" rows="2" maxlength="1000" placeholder="เช่น Power Supply เสื่อมสภาพ"></textarea>
+      <div class="row g-2">
+        <div class="col-md-6"><label class="form-label req" for="clResult">ผลการดำเนินงาน</label><select class="form-select" id="clResult"><option value="">— เลือกผลการดำเนินงาน —</option>${resultOpts}</select></div>
+        <div class="col-md-6"><label class="form-label" for="clNote">หมายเหตุ</label><input class="form-control" id="clNote" maxlength="1000"></div>
+      </div>
+      <div class="text-end mt-3"><button class="btn btn-dark px-4" type="button" data-act="close"><i class="fa-solid fa-lock me-1"></i> ปิดงาน</button></div>`}
+    </div>
+
+    <div class="tm-pane" data-pane="edit">
+      ${lockMsg}
+      <div class="row g-2">
+        ${ef('reporterId', 'รหัสผู้แจ้ง', t.ReporterID, 'maxlength="50"')}
+        ${ef('reporterName', 'ชื่อ-นามสกุล', t.ReporterName, 'maxlength="120"')}
+        ${ef('department', 'กลุ่มสาระ / ฝ่าย / แผนก', t.Department, 'maxlength="120" list="dlDepartments"')}
+        ${ef('phone', 'เบอร์โทรศัพท์', t.Phone, 'maxlength="20"')}
+        ${ef('email', 'Email', t.Email, 'maxlength="120"')}
+        ${ef('building', 'อาคาร', t.Building, 'maxlength="100" list="dlBuildings"')}
+        ${ef('floor', 'ชั้น', t.Floor, 'maxlength="30"')}
+        ${ef('room', 'ห้อง', t.Room, 'maxlength="100"')}
+        ${ef('installPoint', 'จุดติดตั้ง', t.InstallPoint, 'maxlength="150"')}
+        ${ef('assetId', 'หมายเลขครุภัณฑ์', t.AssetID, 'maxlength="60"')}
+        <div class="col-md-6"><label class="form-label" for="ef_problemType">ประเภทปัญหา</label><select class="form-select" id="ef_problemType">${typeOpts}</select></div>
+        <div class="col-md-6"><label class="form-label" for="ef_priority">ความเร่งด่วน</label><select class="form-select" id="ef_priority">${prioOpts}</select></div>
+        <div class="col-12"><label class="form-label" for="ef_problemTitle">หัวข้อปัญหา</label><input class="form-control" id="ef_problemTitle" maxlength="200" value="${esc(t.ProblemTitle)}"></div>
+        <div class="col-12"><label class="form-label" for="ef_problemDetail">รายละเอียดปัญหา</label><textarea class="form-control" id="ef_problemDetail" rows="4" maxlength="5000">${esc(t.ProblemDetail || '')}</textarea></div>
+      </div>
+      <div class="text-end mt-3"><button class="btn btn-grad" type="button" data-act="edit" ${final && !isAdmin ? 'disabled' : ''}><i class="fa-solid fa-floppy-disk me-1"></i> บันทึกการแก้ไข</button></div>
+    </div>
+
+    <div class="tm-pane" data-pane="timeline">
+      <div class="d-flex justify-content-between align-items-center mb-3"><span class="fw-semibold">Timeline</span><button class="btn btn-sm btn-soft" type="button" data-track="${esc(t.TicketID)}" data-bs-dismiss="modal"><i class="fa-solid fa-up-right-from-square me-1"></i>เปิดหน้าติดตาม</button></div>
+      ${timelineHtml(d.timeline)}
+    </div>`;
+
+  showModalTab(A.modal.tab);
+  $$('#tmTabs [data-tab]').forEach(b => b.onclick = () => showModalTab(b.dataset.tab));
+  $$('#tmBody [data-act]').forEach(b => b.onclick = () => modalAction(b.dataset.act, b));
+  const up = $('#mUpload');
+  if (up) up.onchange = e => uploadExtra(e.target.files[0], e.target);
+}
+
+function showModalTab(tab) {
+  A.modal.tab = tab;
+  $$('#tmTabs [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $$('#tmBody [data-pane]').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
+}
+
+async function runAction(btn, fn, args, successMsg) {
+  setBusy(btn, true);
+  try {
+    await api(fn, ...args);
+    toast('success', successMsg);
+    await reloadModal();
+    if (A.page === 'work') loadTickets(true);
+    return true;
+  } catch (e) {
+    handleError(e);
+    setBusy(btn, false);
+    return false;
+  }
+}
+
+async function modalAction(act, btn) {
+  const t = A.modal.data.ticket;
+  const id = t.TicketID;
+  const v = sel => { const el = $(sel); return el ? el.value.trim() : ''; };
+  if (act === 'accept') {
+    await runAction(btn, 'acceptTicket', [id, '', A.token], 'รับเรื่องเรียบร้อย');
+  } else if (act === 'assign') {
+    const staff = v('#mAssign');
+    if (!staff) { $('#mAssign').classList.add('is-invalid'); toast('warning', 'กรุณาเลือกผู้รับผิดชอบ'); return; }
+    await runAction(btn, 'assignTicket', [id, staff, v('#mAssignNote'), A.token], `มอบหมายงานให้ ${staff} แล้ว`);
+  } else if (act === 'status') {
+    const st = v('#mStatus');
+    const note = v('#mStatusNote');
+    if (!st) { $('#mStatus').classList.add('is-invalid'); toast('warning', 'กรุณาเลือกสถานะ'); return; }
+    if (st === 'ยกเลิก' && !note) { $('#mStatusNote').classList.add('is-invalid'); toast('warning', 'กรุณาระบุเหตุผลการยกเลิก'); return; }
+    if (st === 'ยกเลิก') {
+      const c = await Swal.fire({ icon: 'warning', title: 'ยืนยันการยกเลิก Ticket?', text: id, showCancelButton: true, confirmButtonText: 'ยืนยันยกเลิก', cancelButtonText: 'ไม่', confirmButtonColor: '#ef4444' });
+      if (!c.isConfirmed) return;
+    }
+    await runAction(btn, 'updateTicketStatus', [id, st, note, A.token], `เปลี่ยนสถานะเป็น “${st}” แล้ว`);
+  } else if (act === 'worklog') {
+    const action = v('#wlAction');
+    if (!action) { $('#wlAction').classList.add('is-invalid'); toast('warning', 'กรุณากรอกรายละเอียดการดำเนินการ'); return; }
+    const cost = v('#wlCost');
+    if (cost && (isNaN(+cost) || +cost < 0)) { $('#wlCost').classList.add('is-invalid'); toast('warning', 'ค่าใช้จ่ายไม่ถูกต้อง'); return; }
+    const prog = $('#wlProgress');
+    await runAction(btn, 'addWorkLog', [{ ticketId: id, action, parts: v('#wlParts'), cost, note: v('#wlNote'), setInProgress: !!(prog && prog.checked) }, A.token], 'บันทึก Work Log แล้ว');
+  } else if (act === 'close') {
+    const data = { resolution: v('#clResolution'), rootCause: v('#clRoot'), result: v('#clResult'), note: v('#clNote') };
+    const miss = [];
+    [['resolution', '#clResolution', 'วิธีการแก้ไข'], ['rootCause', '#clRoot', 'สาเหตุของปัญหา'], ['result', '#clResult', 'ผลการดำเนินงาน']].forEach(x => {
+      const bad = !data[x[0]];
+      $(x[1]).classList.toggle('is-invalid', bad);
+      if (bad) miss.push(x[2]);
+    });
+    if (miss.length) { Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลก่อนปิดงาน', html: miss.map(m => '• ' + esc(m)).join('<br>') }); return; }
+    const c = await Swal.fire({ icon: 'question', title: 'ยืนยันปิดงาน?', html: `<b>${esc(id)}</b><br>${esc(t.ProblemTitle)}`, showCancelButton: true, confirmButtonText: 'ยืนยันปิดงาน', cancelButtonText: 'ยกเลิก' });
+    if (!c.isConfirmed) return;
+    if (await runAction(btn, 'closeTicket', [id, data, A.token], 'ปิดงานเรียบร้อย')) {
+      Swal.fire({ icon: 'success', title: 'ปิดงานเรียบร้อย', text: 'ระบบได้แจ้งเตือนทีมงานแล้ว และผู้แจ้งสามารถประเมินความพึงพอใจได้', timer: 2600, showConfirmButton: false });
+    }
+  } else if (act === 'edit') {
+    const keys = ['reporterId', 'reporterName', 'department', 'phone', 'email', 'building', 'floor', 'room', 'installPoint', 'assetId', 'problemType', 'priority', 'problemTitle', 'problemDetail'];
+    const data = {};
+    keys.forEach(k => { data[k] = v('#ef_' + k); });
+    const req = ['reporterName', 'department', 'phone', 'building', 'room', 'problemTitle', 'problemDetail'].filter(k => !data[k]);
+    req.forEach(k => $('#ef_' + k).classList.add('is-invalid'));
+    if (req.length) { toast('warning', 'กรุณากรอกข้อมูลที่จำเป็นให้ครบ'); return; }
+    await runAction(btn, 'updateTicket', [id, data, A.token], 'บันทึกการแก้ไขแล้ว');
+  }
+}
+
+async function uploadExtra(file, input) {
+  if (!file) return;
+  showLoading('กำลังอัปโหลดไฟล์...');
+  try {
+    const f = await processFile(file);
+    await api('uploadAttachment', { ticketId: A.modal.id, name: f.name, mimeType: f.mimeType, data: f.data }, A.token);
+    toast('success', 'แนบไฟล์เรียบร้อย');
+    await reloadModal();
+  } catch (e) { handleError(e, 'อัปโหลดไม่สำเร็จ'); }
+  finally { hideLoading(); if (input) input.value = ''; }
+}
+
+/* ---------------------------------- Reports ---------------------------------- */
+function computeRange() {
+  const key = ($('input[name=rpRange]:checked') || {}).value || 'month';
+  const today = bkkDate();
+  const [y, m] = today.split('-').map(Number);
+  if (key === 'today') return [today, today];
+  if (key === '7d') return [bkkDate(new Date(Date.now() - 6 * 86400000)), today];
+  if (key === 'month') return [today.slice(0, 8) + '01', today];
+  if (key === 'lastmonth') {
+    const py = m === 1 ? y - 1 : y, pm = m === 1 ? 12 : m - 1;
+    const last = new Date(Date.UTC(py, pm, 0)).getUTCDate();
+    return [`${py}-${pad(pm)}-01`, `${py}-${pad(pm)}-${pad(last)}`];
+  }
+  return [$('#rpStart').value, $('#rpEnd').value];
+}
+
+function validRange(r) {
+  if (!r[0] || !r[1]) { Swal.fire({ icon: 'warning', title: 'กรุณาเลือกช่วงวันที่' }); return false; }
+  if (r[0] > r[1]) { Swal.fire({ icon: 'warning', title: 'วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด' }); return false; }
+  return true;
+}
+
+async function loadReport() {
+  const r = computeRange();
+  if (!validRange(r)) return;
+  $('#reportBody').innerHTML = `<div class="cardx">${loaderHtml('กำลังประมวลผลรายงาน...')}</div>`;
+  try {
+    const d = await api('getReports', r[0], r[1], A.token);
+    A.reportData = d;
+    renderReport(d);
+  } catch (e) {
+    $('#reportBody').innerHTML = `<div class="cardx">${emptyHtml(e.message, 'fa-solid fa-circle-exclamation')}</div>`;
+    handleError(e);
+  }
+}
+
+function renderReport(d) {
+  const s = d.summary;
+  const cards = [
+    ['จำนวน Ticket', s.total.toLocaleString('th-TH'), 'fa-ticket', 'g-blue'],
+    ['งานค้าง', s.open, 'fa-hourglass-half', 'g-amber'],
+    ['แก้ไขแล้ว / ปิดงาน', `${s.resolved} (${s.resolveRate}%)`, 'fa-circle-check', 'g-green'],
+    ['ด่วนมาก', s.urgent, 'fa-triangle-exclamation', 'g-red'],
+    ['เวลาแก้ไขเฉลี่ย', s.avgResolutionText, 'fa-stopwatch', 'g-pink', true],
+    ['ความพึงพอใจเฉลี่ย', s.avgRating != null ? `${s.avgRating} / 5 (${s.ratingCount})` : '-', 'fa-star', 'g-purple', true],
+    ['ค่าใช้จ่ายรวม', money(s.totalCost) + ' ฿', 'fa-coins', 'g-cyan', true],
+    ['ยกเลิก', s.cancelled, 'fa-ban', 'g-slate']
+  ];
+  const maxStaff = Math.max(1, ...d.staff.map(x => x.total));
+  $('#reportBody').innerHTML = `
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2"><div class="fw-semibold"><i class="fa-regular fa-calendar me-1 text-primary"></i>ช่วงเวลา: ${esc(d.range.text)} (${d.range.days} วัน)</div></div>
+    <div class="stat-grid">${cards.map(c => `<div class="stat"><div class="ic ${c[3]}"><i class="fa-solid ${c[2]}"></i></div><div><div class="val ${c[4] ? 'small-val' : ''}">${esc(c[1])}</div><div class="lbl">${esc(c[0])}</div></div></div>`).join('')}</div>
+    <div class="row g-3">
+      <div class="col-lg-8"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-chart-line"></i></span>แนวโน้มการแจ้ง / แก้ไข</div><div class="chart-box"><canvas id="rpTrend"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ไม่มีข้อมูลในช่วงนี้</div></div></div></div>
+      <div class="col-lg-4"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-circle-half-stroke"></i></span>Ticket ตามสถานะ</div><div class="chart-box"><canvas id="rpStatus"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ไม่มีข้อมูล</div></div></div></div>
+      <div class="col-lg-8"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-layer-group"></i></span>Ticket ตามประเภท</div><div class="chart-box"><canvas id="rpType"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ไม่มีข้อมูล</div></div></div></div>
+      <div class="col-lg-4"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-gauge-high"></i></span>Ticket ตามความเร่งด่วน</div><div class="chart-box"><canvas id="rpPriority"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ไม่มีข้อมูล</div></div></div></div>
+      <div class="col-12"><div class="cardx">
+        <div class="cardx-title"><span class="ic"><i class="fa-solid fa-users-gear"></i></span>ผลงานเจ้าหน้าที่แต่ละคน</div>
+        ${d.staff.length ? `<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr class="small text-muted"><th>เจ้าหน้าที่</th><th class="text-center">งานทั้งหมด</th><th class="text-center">ค้าง</th><th class="text-center">เสร็จ</th><th class="text-center">Work Log</th><th>เวลาแก้ไขเฉลี่ย</th><th class="text-center">ความพึงพอใจ</th><th class="text-end">ค่าใช้จ่าย</th></tr></thead><tbody>
+        ${d.staff.map(x => `<tr><td><div class="fw-medium">${esc(x.name)}</div><div class="rank-bar" style="max-width:180px"><span style="width:${Math.round(x.total / maxStaff * 100)}%"></span></div></td><td class="text-center">${x.total}</td><td class="text-center">${x.open}</td><td class="text-center">${x.done}</td><td class="text-center">${x.workLogs || 0}</td><td>${esc(x.avgResolutionText)}</td><td class="text-center">${x.avgRating != null ? `<span class="stars-ro small">★</span> ${x.avgRating}` : '-'}</td><td class="text-end">${money(x.cost)}</td></tr>`).join('')}
+        </tbody></table></div>` : emptyHtml('ไม่มีข้อมูลเจ้าหน้าที่ในช่วงนี้', 'fa-solid fa-user-clock')}
+      </div></div>
+      <div class="col-lg-6"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-fire"></i></span>ปัญหาที่พบบ่อย</div>
+        ${d.topProblems.length ? d.topProblems.map((p, i) => `<div class="rank-item"><div class="rank-no ${i < 3 ? 'top' : ''}">${i + 1}</div><div class="flex-grow-1" style="min-width:0"><div class="fw-medium text-truncate">${esc(p.title)}</div><div class="small text-muted">${typeChip(p.type)}</div></div><span class="badge bg-light text-dark border">${p.count} ครั้ง</span></div>`).join('') : emptyHtml('ไม่มีข้อมูล')}
+      </div></div>
+      <div class="col-lg-3 col-md-6"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-building"></i></span>ตามอาคาร</div>${listTable(d.byBuilding)}</div></div>
+      <div class="col-lg-3 col-md-6"><div class="cardx h-100"><div class="cardx-title"><span class="ic"><i class="fa-solid fa-sitemap"></i></span>ตามแผนก</div>${listTable(d.byDepartment)}</div></div>
+    </div>`;
+  lineChart('rpTrend', d.trend);
+  doughnutChart('rpStatus', d.byStatus);
+  barChart('rpType', d.byType, false);
+  doughnutChart('rpPriority', d.byPriority);
+}
+
+function listTable(items) {
+  if (!items.length) return emptyHtml('ไม่มีข้อมูล');
+  return items.slice(0, 12).map(i => `<div class="d-flex justify-content-between py-1 border-bottom small"><span class="text-truncate me-2">${esc(i.label)}</span><b>${i.value}</b></div>`).join('');
+}
+
+async function exportCsv(toDrive, btn) {
+  const r = computeRange();
+  if (!validRange(r)) return;
+  setBusy(btn, true, toDrive ? 'กำลังบันทึก...' : 'กำลังสร้างไฟล์...');
+  try {
+    const res = await api('exportCSV', { startDate: r[0], endDate: r[1], saveToDrive: !!toDrive }, A.token);
+    if (toDrive) {
+      const url = safeDriveUrl(res.url) || '';
+      Swal.fire({ icon: 'success', title: 'บันทึกไฟล์ลง Google Drive แล้ว', html: `${esc(res.filename)}<br><small class="text-muted">${res.count} รายการ</small>${url ? `<br><a class="btn btn-soft mt-3" href="${esc(url)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-google-drive me-1"></i> เปิดไฟล์</a>` : ''}` });
+    } else {
+      const blob = new Blob([res.content], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = res.filename; a.target = '_self';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      toast('success', `Export CSV แล้ว (${res.count} รายการ)`);
+    }
+  } catch (e) { handleError(e, 'Export ไม่สำเร็จ'); }
+  finally { setBusy(btn, false); }
+}
+
+/* ---------------------------------- Settings ---------------------------------- */
+function renderSettings() {
+  const u = A.user;
+  if (u) {
+    $('#profileCard').innerHTML = `
+      <div class="d-flex align-items-center gap-3 mb-3"><div class="avatar" style="width:58px;height:58px;font-size:1.4rem">${initials(u.name)}</div>
+        <div><div class="fw-semibold fs-5">${esc(u.name)}</div><span class="role-badge role-${esc(u.role.replace(/\s/g, ''))}">${esc(u.role)}</span>${u.guest ? ' <span class="small text-muted">บัญชี Google Workspace</span>' : ''}</div></div>
+      <div class="kv mb-3">
+        <div class="item"><div class="k">รหัสผู้ใช้</div><div class="v">${esc(u.userId)}</div></div>
+        <div class="item"><div class="k">Email</div><div class="v">${esc(u.email || '-')}</div></div>
+        <div class="item"><div class="k">แผนก</div><div class="v">${esc(u.department || '-')}</div></div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        ${u.guest ? '' : '<button class="btn btn-soft" type="button" id="btnChangePw"><i class="fa-solid fa-key me-1"></i> เปลี่ยนรหัสผ่าน</button>'}
+        <button class="btn btn-outline-danger" type="button" id="btnLogout"><i class="fa-solid fa-right-from-bracket me-1"></i> ออกจากระบบ</button>
+      </div>`;
+    const cp = $('#btnChangePw'); if (cp) cp.onclick = () => promptChangePassword(false);
+    $('#btnLogout').onclick = doLogout;
+  }
+  if (u && u.isAdmin) loadAdminSettings();
+}
+
+async function loadAdminSettings() {
+  $('#userList').innerHTML = loaderHtml();
+  $('#systemInfo').innerHTML = loaderHtml();
+  try {
+    const [s, users] = await Promise.all([api('getSettings', A.token), api('getUsers', A.token)]);
+    A.admin.settings = s;
+    A.admin.users = users;
+    A.settings = s.settings;
+    fillDatalists();
+    const raw = s.raw || {};
+    $('#s_org').value = raw.ORG_NAME || '';
+    $('#s_assignees').value = raw.ASSIGNEES || '';
+    $('#s_buildings').value = raw.BUILDINGS || '';
+    $('#s_departments').value = raw.DEPARTMENTS || '';
+    $('#s_guest').checked = s.settings.ALLOW_GUEST_REPORT;
+    $('#s_tg').checked = s.settings.NOTIFY_TELEGRAM;
+    $('#s_gc').checked = s.settings.NOTIFY_GOOGLE_CHAT;
+    $('#s_sharing').value = raw.ATTACHMENT_SHARING || 'ANYONE_WITH_LINK';
+    const sys = s.system || {};
+    const st = (ok, label, extra) => `<div class="col-md-4"><div class="set-status"><i class="fa-solid ${ok ? 'fa-circle-check ok' : 'fa-circle-xmark no'}"></i><div><div class="fw-medium small">${esc(label)}</div><div class="small text-muted">${ok ? 'ตั้งค่าแล้ว' : 'ยังไม่ได้ตั้งค่า'}${extra ? ' • ' + esc(extra) : ''}</div></div></div></div>`;
+    $('#secretStatus').innerHTML = st(sys.telegramConfigured, 'Telegram Bot', sys.telegramChatIdMasked) + st(sys.googleChatConfigured, 'Google Chat Webhook') + st(sys.driveFolderConfigured, 'Drive Folder', sys.driveFolderConfigured ? '' : 'ใช้โฟลเดอร์อัตโนมัติ');
+    const link = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" class="text-break">${esc(t || u)}</a>` : '-';
+    $('#systemInfo').innerHTML = `<div class="kv">
+      <div class="item"><div class="k">Google Sheets Database</div><div class="v">${link(sys.spreadsheetUrl, sys.spreadsheetName)}</div></div>
+      <div class="item"><div class="k">โฟลเดอร์ไฟล์แนบ</div><div class="v">${link(sys.driveFolderUrl, 'เปิดโฟลเดอร์ Google Drive')}</div></div>
+      <div class="item"><div class="k">Web App URL</div><div class="v">${link(sys.webAppUrl)}</div></div>
+      <div class="item"><div class="k">Timezone / เจ้าของสคริปต์</div><div class="v">${esc(sys.timezone)} • ${esc(sys.ownerEmail || '-')}</div></div></div>`;
+    renderUsers();
+  } catch (e) {
+    $('#userList').innerHTML = emptyHtml(e.message, 'fa-solid fa-circle-exclamation');
+    $('#systemInfo').innerHTML = '';
+    handleError(e);
+  }
+}
+
+function renderUsers() {
+  const users = A.admin.users;
+  $('#userList').innerHTML = users.length ? users.map(u => `
+    <div class="user-row">
+      <div class="avatar">${initials(u.name)}</div>
+      <div class="flex-grow-1" style="min-width:0">
+        <div class="fw-medium">${esc(u.name)} <span class="role-badge role-${esc(String(u.role).replace(/\s/g, ''))}">${esc(u.role)}</span> ${u.status !== 'Active' ? '<span class="badge bg-secondary">ปิดใช้งาน</span>' : ''}</div>
+        <div class="small text-muted text-truncate">${esc(u.userId)} • ${esc(u.email || 'ไม่มีอีเมล')} • ${esc(u.department || '-')} ${u.lastLoginText ? '• เข้าใช้ล่าสุด ' + esc(u.lastLoginText) : ''}</div>
+      </div>
+      <button class="btn btn-sm btn-soft" type="button" data-edit-user="${esc(u.userId)}"><i class="fa-solid fa-pen"></i><span class="d-none d-md-inline ms-1">แก้ไข</span></button>
+    </div>`).join('') : emptyHtml('ยังไม่มีผู้ใช้');
+}
+
+async function editUser(u) {
+  const isNew = !u;
+  u = u || { role: 'IT Staff', status: 'Active' };
+  const roleOpts = A.meta.roles.map(r => `<option ${r === u.role ? 'selected' : ''}>${esc(r)}</option>`).join('');
+  const res = await Swal.fire({
+    title: isNew ? 'เพิ่มผู้ใช้ใหม่' : 'แก้ไขผู้ใช้',
+    width: 640,
+    html: `<div class="swal-form row g-2 text-start">
+      <div class="col-sm-6"><label for="uId">รหัสผู้ใช้ (ภาษาอังกฤษ)</label><input id="uId" class="form-control" value="${esc(u.userId || '')}" ${isNew ? '' : 'readonly'}></div>
+      <div class="col-sm-6"><label for="uName">ชื่อ-นามสกุล</label><input id="uName" class="form-control" value="${esc(u.name || '')}"></div>
+      <div class="col-sm-6"><label for="uEmail">Email (Google Workspace)</label><input id="uEmail" type="email" class="form-control" value="${esc(u.email || '')}"></div>
+      <div class="col-sm-6"><label for="uPhone">เบอร์โทรศัพท์</label><input id="uPhone" class="form-control" value="${esc(u.phone || '')}"></div>
+      <div class="col-12"><label for="uDept">แผนก</label><input id="uDept" class="form-control" list="dlDepartments" value="${esc(u.department || '')}"></div>
+      <div class="col-sm-6"><label for="uRole">บทบาท</label><select id="uRole" class="form-select">${roleOpts}</select></div>
+      <div class="col-sm-6"><label for="uStatus">สถานะ</label><select id="uStatus" class="form-select"><option value="Active" ${u.status === 'Active' ? 'selected' : ''}>ใช้งาน</option><option value="Inactive" ${u.status !== 'Active' ? 'selected' : ''}>ปิดใช้งาน</option></select></div>
+      <div class="col-12"><label for="uPw">${isNew ? 'รหัสผ่าน' : 'ตั้งรหัสผ่านใหม่'} <small class="text-muted fw-normal">(อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข${isNew ? ' — เว้นว่างได้หากใช้ Login ด้วย Google Workspace' : ' — เว้นว่างหากไม่เปลี่ยน'})</small></label><input id="uPw" type="password" class="form-control" autocomplete="new-password"></div>
+      <div class="col-12 small text-muted mt-2">Admin: ทำได้ทุกอย่าง • IT Staff: จัดการ Ticket/รายงาน • User: แจ้งปัญหา ดู Ticket ของตนเอง และประเมิน</div></div>`,
+    showCancelButton: true, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก', focusConfirm: false, showLoaderOnConfirm: true,
+    allowOutsideClick: () => !Swal.isLoading(),
+    preConfirm: async () => {
+      const data = { isNew, userId: $('#uId').value.trim(), name: $('#uName').value.trim(), email: $('#uEmail').value.trim(), phone: $('#uPhone').value.trim(), department: $('#uDept').value.trim(), role: $('#uRole').value, status: $('#uStatus').value, password: $('#uPw').value };
+      if (!data.userId || !data.name) { Swal.showValidationMessage('กรุณากรอกรหัสผู้ใช้และชื่อ'); return false; }
+      try { return await api('saveUser', data, A.token); }
+      catch (e) { Swal.showValidationMessage(e.message); return false; }
+    }
+  });
+  if (res.isConfirmed) { toast('success', 'บันทึกผู้ใช้แล้ว'); loadAdminSettings(); }
+}
+
+async function saveGeneralSettings(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('#settingsForm button[type=submit]');
+  setBusy(btn, true, 'กำลังบันทึก...');
+  try {
+    const s = await api('saveSettings', {
+      ORG_NAME: $('#s_org').value, ASSIGNEES: $('#s_assignees').value, BUILDINGS: $('#s_buildings').value, DEPARTMENTS: $('#s_departments').value,
+      ALLOW_GUEST_REPORT: $('#s_guest').checked, NOTIFY_TELEGRAM: $('#s_tg').checked, NOTIFY_GOOGLE_CHAT: $('#s_gc').checked, ATTACHMENT_SHARING: $('#s_sharing').value
+    }, A.token);
+    A.settings = s;
+    $$('[data-org]').forEach(el => { el.textContent = s.ORG_NAME; });
+    fillDatalists();
+    toast('success', 'บันทึกการตั้งค่าแล้ว');
+  } catch (err) { handleError(err); }
+  finally { setBusy(btn, false); }
+}
+
+async function saveSecrets(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('#secretForm button[type=submit]');
+  const data = { TELEGRAM_BOT_TOKEN: $('#sc_tgToken').value.trim(), TELEGRAM_CHAT_ID: $('#sc_tgChat').value.trim(), GOOGLE_CHAT_WEBHOOK_URL: $('#sc_gc').value.trim(), DRIVE_FOLDER_ID: $('#sc_drive').value.trim() };
+  if (!Object.values(data).some(Boolean)) { toast('info', 'ไม่มีค่าที่ต้องการบันทึก'); return; }
+  setBusy(btn, true, 'กำลังบันทึก...');
+  try {
+    const r = await api('saveSecretConfig', data, A.token);
+    $('#secretForm').reset();
+    Swal.fire({ icon: 'success', title: 'บันทึกค่าลับเรียบร้อย', text: 'อัปเดต: ' + r.updated.join(', ') });
+    loadAdminSettings();
+  } catch (err) { handleError(err); }
+  finally { setBusy(btn, false); }
+}
+
+async function testNotify(channel, btn) {
+  setBusy(btn, true, 'กำลังส่ง...');
+  try {
+    const r = await api('testNotification', channel, A.token);
+    const res = r.telegram || r.googleChat || {};
+    Swal.fire({ icon: res.sent ? 'success' : 'error', title: res.sent ? 'ส่งข้อความทดสอบสำเร็จ' : 'ส่งไม่สำเร็จ', text: res.message || '' });
+  } catch (e) { handleError(e); }
+  finally { setBusy(btn, false); }
+}
+</script>
+</body>
+</html>
