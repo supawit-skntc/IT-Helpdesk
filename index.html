@@ -492,7 +492,7 @@
         </div>
         <div class="col-lg-6">
           <div class="cardx h-100">
-            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-sitemap"></i></span>ปัญหาแยกตามแผนก / กลุ่มสาระ</div>
+            <div class="cardx-title"><span class="ic"><i class="fa-solid fa-sitemap"></i></span>ปัญหาแยกตามแผนก / งาน</div>
             <div class="chart-box"><canvas id="chDept"></canvas><div class="chart-empty"><i class="fa-regular fa-chart-bar fa-2x"></i>ยังไม่มีข้อมูล</div></div>
           </div>
         </div>
@@ -540,7 +540,7 @@
               <div class="row g-3">
                 <div class="col-sm-5">
                   <label class="form-label" for="f_reporterId">รหัสผู้แจ้ง</label>
-                  <input class="form-control" id="f_reporterId" name="reporterId" maxlength="50" placeholder="เช่น รหัสครู/พนักงาน">
+                  <input class="form-control" id="f_reporterId" name="reporterId" maxlength="50" placeholder="เช่น รหัสบุคลากร">
                 </div>
                 <div class="col-sm-7">
                   <label class="form-label req" for="f_reporterName">ชื่อ-นามสกุล</label>
@@ -548,9 +548,9 @@
                   <div class="invalid-feedback">กรุณากรอกชื่อ-นามสกุล</div>
                 </div>
                 <div class="col-12">
-                  <label class="form-label req" for="f_department">กลุ่มสาระ / ฝ่าย / แผนก</label>
+                  <label class="form-label req" for="f_department">แผนก / งาน / ฝ่าย</label>
                   <input class="form-control" id="f_department" name="department" list="dlDepartments" maxlength="120" required>
-                  <div class="invalid-feedback">กรุณาระบุกลุ่มสาระ / ฝ่าย / แผนก</div>
+                  <div class="invalid-feedback">กรุณาระบุแผนก / งาน / ฝ่าย</div>
                 </div>
                 <div class="col-sm-6">
                   <label class="form-label req" for="f_phone">เบอร์โทรศัพท์</label>
@@ -559,7 +559,7 @@
                 </div>
                 <div class="col-sm-6">
                   <label class="form-label" for="f_email">Email</label>
-                  <input class="form-control" id="f_email" name="email" type="email" inputmode="email" maxlength="120" autocomplete="email">
+                  <input class="form-control" id="f_email" name="email" type="email" inputmode="email" maxlength="120" autocomplete="email" placeholder="กรอกเพื่อรับอีเมลแจ้งความคืบหน้า">
                   <div class="invalid-feedback">รูปแบบอีเมลไม่ถูกต้อง</div>
                 </div>
               </div>
@@ -585,7 +585,7 @@
                 </div>
                 <div class="col-sm-6">
                   <label class="form-label" for="f_installPoint">จุดติดตั้ง</label>
-                  <input class="form-control" id="f_installPoint" name="installPoint" maxlength="150" placeholder="เช่น โต๊ะครู / แถวที่ 3">
+                  <input class="form-control" id="f_installPoint" name="installPoint" maxlength="150" placeholder="เช่น โต๊ะครูผู้สอน / แถวที่ 3">
                 </div>
                 <div class="col-12">
                   <label class="form-label" for="f_assetId">หมายเลขครุภัณฑ์ / Asset ID</label>
@@ -829,7 +829,7 @@
           <div class="cardx">
             <div class="cardx-title"><span class="ic"><i class="fa-solid fa-sliders"></i></span>ตั้งค่าทั่วไป</div>
             <form id="settingsForm" novalidate>
-              <label class="form-label" for="s_org">ชื่อหน่วยงาน / โรงเรียน</label>
+              <label class="form-label" for="s_org">ชื่อวิทยาลัย / หน่วยงาน</label>
               <input class="form-control mb-3" id="s_org" maxlength="200">
               <div class="row g-3">
                 <div class="col-md-4">
@@ -841,7 +841,7 @@
                   <textarea class="form-control" id="s_buildings" rows="6"></textarea>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label" for="s_departments">แผนก / กลุ่มสาระ (บรรทัดละ 1)</label>
+                  <label class="form-label" for="s_departments">แผนก / งาน / ฝ่าย (บรรทัดละ 1)</label>
                   <textarea class="form-control" id="s_departments" rows="6"></textarea>
                 </div>
               </div>
@@ -849,6 +849,7 @@
                 <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_guest"><label class="form-check-label" for="s_guest">แจ้งปัญหาโดยไม่ต้อง Login</label></div></div>
                 <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_tg"><label class="form-check-label" for="s_tg">แจ้งเตือน Telegram</label></div></div>
                 <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_gc"><label class="form-check-label" for="s_gc">แจ้งเตือน Google Chat</label></div></div>
+                <div class="col-md-8"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="s_mail"><label class="form-check-label" for="s_mail">ส่งอีเมลแจ้งความคืบหน้าให้ผู้แจ้ง</label></div></div>
               </div>
               <label class="form-label mt-3" for="s_sharing">สิทธิ์การเข้าถึงไฟล์แนบ</label>
               <select class="form-select" id="s_sharing">
@@ -1084,7 +1085,7 @@ async function init() {
   A.token = store.get('ithd_token', null);
   showLoading('กำลังเชื่อมต่อระบบ...');
   try {
-    const b = await api('getBootstrap', A.token);
+    const b = await api('getBootstrap', A.token, !!store.get('ithd_no_auto', false));
     A.meta = b.meta;
     A.settings = b.settings;
     setAuth(b.token, b.user);
@@ -1199,7 +1200,9 @@ async function showLoginDialog(nextPage) {
       <label for="swPw">รหัสผ่าน</label><input id="swPw" type="password" class="form-control" autocomplete="current-password"></div>`,
     showCancelButton: true, confirmButtonText: 'เข้าสู่ระบบ', cancelButtonText: 'ยกเลิก', focusConfirm: false,
     showLoaderOnConfirm: true, allowOutsideClick: () => !Swal.isLoading(),
+    footer: '<a id="swGoogle" class="text-decoration-none"><i class="fa-brands fa-google me-1"></i>เข้าสู่ระบบด้วยบัญชี Google ของวิทยาลัย</a>',
     didOpen: () => {
+      $('#swGoogle').onclick = () => { Swal.close(); googleLogin(nextPage); };
       $('#swId').focus();
       $('#swPw').addEventListener('keydown', e => { if (e.key === 'Enter') Swal.clickConfirm(); });
     },
@@ -1213,7 +1216,24 @@ async function showLoginDialog(nextPage) {
   if (res.isConfirmed && res.value) afterLogin(res.value, nextPage);
 }
 
+async function googleLogin(nextPage) {
+  showLoading('กำลังตรวจสอบบัญชี Google...');
+  try {
+    const b = await api('getBootstrap', null, false);
+    if (!b.user) {
+      Swal.fire({ icon: 'info', title: 'ไม่พบบัญชี Google', text: 'กรุณาเปิดเว็บนี้ขณะล็อกอินบัญชี Google ของวิทยาลัย หรือเข้าสู่ระบบด้วยรหัสผู้ใช้และรหัสผ่าน' });
+      return;
+    }
+    afterLogin({ token: b.token, user: b.user }, nextPage);
+  } catch (e) {
+    handleError(e, 'เข้าสู่ระบบไม่สำเร็จ');
+  } finally {
+    hideLoading();
+  }
+}
+
 function afterLogin(r, nextPage) {
+  store.del('ithd_no_auto');
   setAuth(r.token, r.user);
   toast('success', `ยินดีต้อนรับ ${r.user.name}`);
   if (r.user.mustChange) { promptChangePassword(true); return; }
@@ -1250,6 +1270,7 @@ async function promptChangePassword(force) {
 
 async function doLogout() {
   const token = A.token;
+  store.set('ithd_no_auto', true); // ไม่เข้าสู่ระบบอัตโนมัติด้วยบัญชี Google จนกว่าจะกดเข้าสู่ระบบเอง
   clearAuth();
   try { await api('logout', token); } catch (e) { /* ignore */ }
   toast('success', 'ออกจากระบบแล้ว');
@@ -1548,7 +1569,8 @@ function prefillReporter() {
   const set = (name, v) => { if (v && !f.elements[name].value) f.elements[name].value = v; };
   if (saved) Object.keys(saved).forEach(k => set(k, saved[k]));
   if (A.user) {
-    set('reporterName', A.user.name);
+    // บัญชี Google ที่ยังไม่ได้ลงทะเบียน: ระบบรู้แค่อีเมล ไม่รู้ชื่อจริง จึงไม่เติมชื่อให้
+    if (!A.user.guest) set('reporterName', A.user.name);
     set('email', A.user.email);
     set('department', A.user.department);
     set('phone', A.user.phone);
@@ -1578,7 +1600,7 @@ function validateReport(d) {
     if (bad) errors.push({ el, label });
   };
   mark('reporterName', !d.reporterName, 'ชื่อ-นามสกุล');
-  mark('department', !d.department, 'กลุ่มสาระ/ฝ่าย/แผนก');
+  mark('department', !d.department, 'แผนก/งาน/ฝ่าย');
   mark('phone', !/^[0-9+\-\s().]{6,20}$/.test(d.phone) || d.phone.replace(/\D/g, '').length < 6, 'เบอร์โทรศัพท์');
   mark('email', !!d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email), 'Email');
   mark('building', !d.building, 'อาคาร');
@@ -1836,7 +1858,7 @@ function ticketInfoGrid(t, full) {
   const items = [
     ['fa-calendar', 'วันที่ / เวลาแจ้ง', t.createdAtText ? t.createdAtText + ' น.' : '-'],
     ['fa-user', 'ผู้แจ้ง', t.ReporterName + (full && t.ReporterID ? ` (${t.ReporterID})` : '')],
-    ['fa-sitemap', 'กลุ่มสาระ / ฝ่าย / แผนก', t.Department],
+    ['fa-sitemap', 'แผนก / งาน / ฝ่าย', t.Department],
     ['fa-location-dot', 'สถานที่', [t.Room, t.Building, t.Floor ? 'ชั้น ' + t.Floor : ''].filter(Boolean).join(' • ')],
     ['fa-crosshairs', 'จุดติดตั้ง', t.InstallPoint],
     ['fa-layer-group', 'ประเภทปัญหา', t.ProblemType],
@@ -2191,7 +2213,7 @@ function renderModal(d) {
       <div class="row g-2">
         ${ef('reporterId', 'รหัสผู้แจ้ง', t.ReporterID, 'maxlength="50"')}
         ${ef('reporterName', 'ชื่อ-นามสกุล', t.ReporterName, 'maxlength="120"')}
-        ${ef('department', 'กลุ่มสาระ / ฝ่าย / แผนก', t.Department, 'maxlength="120" list="dlDepartments"')}
+        ${ef('department', 'แผนก / งาน / ฝ่าย', t.Department, 'maxlength="120" list="dlDepartments"')}
         ${ef('phone', 'เบอร์โทรศัพท์', t.Phone, 'maxlength="20"')}
         ${ef('email', 'Email', t.Email, 'maxlength="120"')}
         ${ef('building', 'อาคาร', t.Building, 'maxlength="100" list="dlBuildings"')}
@@ -2445,6 +2467,7 @@ async function loadAdminSettings() {
     $('#s_guest').checked = s.settings.ALLOW_GUEST_REPORT;
     $('#s_tg').checked = s.settings.NOTIFY_TELEGRAM;
     $('#s_gc').checked = s.settings.NOTIFY_GOOGLE_CHAT;
+    $('#s_mail').checked = s.settings.NOTIFY_REPORTER_EMAIL;
     $('#s_sharing').value = raw.ATTACHMENT_SHARING || 'ANYONE_WITH_LINK';
     const sys = s.system || {};
     const st = (ok, label, extra) => `<div class="col-md-4"><div class="set-status"><i class="fa-solid ${ok ? 'fa-circle-check ok' : 'fa-circle-xmark no'}"></i><div><div class="fw-medium small">${esc(label)}</div><div class="small text-muted">${ok ? 'ตั้งค่าแล้ว' : 'ยังไม่ได้ตั้งค่า'}${extra ? ' • ' + esc(extra) : ''}</div></div></div></div>`;
@@ -2512,7 +2535,7 @@ async function saveGeneralSettings(e) {
   try {
     const s = await api('saveSettings', {
       ORG_NAME: $('#s_org').value, ASSIGNEES: $('#s_assignees').value, BUILDINGS: $('#s_buildings').value, DEPARTMENTS: $('#s_departments').value,
-      ALLOW_GUEST_REPORT: $('#s_guest').checked, NOTIFY_TELEGRAM: $('#s_tg').checked, NOTIFY_GOOGLE_CHAT: $('#s_gc').checked, ATTACHMENT_SHARING: $('#s_sharing').value
+      ALLOW_GUEST_REPORT: $('#s_guest').checked, NOTIFY_TELEGRAM: $('#s_tg').checked, NOTIFY_GOOGLE_CHAT: $('#s_gc').checked, NOTIFY_REPORTER_EMAIL: $('#s_mail').checked, ATTACHMENT_SHARING: $('#s_sharing').value
     }, A.token);
     A.settings = s;
     $$('[data-org]').forEach(el => { el.textContent = s.ORG_NAME; });

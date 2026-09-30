@@ -129,17 +129,24 @@ const SHEET_HEADERS = {
 };
 
 const DEFAULT_SETTINGS = [
-  ['ORG_NAME', 'โรงเรียน / องค์กรของคุณ', 'ชื่อหน่วยงานที่แสดงบนระบบ'],
+  ['ORG_NAME', 'วิทยาลัยของคุณ (แก้ไขได้ที่เมนูตั้งค่า)', 'ชื่อวิทยาลัยที่แสดงบนระบบ'],
   ['ASSIGNEES', 'IT Admin\nNetwork Admin\nComputer Technician\nเจ้าหน้าที่โสตฯ\nเจ้าหน้าที่ระบบสารสนเทศ', 'รายชื่อ/ตำแหน่งผู้รับผิดชอบงาน (บรรทัดละ 1 รายการ)'],
   ['BUILDINGS', 'อาคาร 1\nอาคาร 2\nอาคาร 3\nอาคารอเนกประสงค์\nอาคารสำนักงาน', 'รายชื่ออาคาร (บรรทัดละ 1 รายการ)'],
-  ['DEPARTMENTS', 'ฝ่ายบริหารวิชาการ\nฝ่ายบริหารงานบุคคล\nฝ่ายบริหารงบประมาณ\nฝ่ายบริหารทั่วไป\nกลุ่มสาระการเรียนรู้ภาษาไทย\nกลุ่มสาระการเรียนรู้คณิตศาสตร์\nกลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี\nกลุ่มสาระการเรียนรู้สังคมศึกษาฯ\nกลุ่มสาระการเรียนรู้ภาษาต่างประเทศ\nกลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา\nกลุ่มสาระการเรียนรู้ศิลปะ\nกลุ่มสาระการเรียนรู้การงานอาชีพ', 'รายชื่อกลุ่มสาระ / ฝ่าย / แผนก (บรรทัดละ 1 รายการ)'],
+  ['DEPARTMENTS', 'ฝ่ายบริหารทรัพยากร\nฝ่ายแผนงานและความร่วมมือ\nฝ่ายพัฒนากิจการนักเรียนนักศึกษา\nฝ่ายวิชาการ\nงานบริหารงานทั่วไป\nงานบุคลากร\nงานการเงิน\nงานบัญชี\nงานพัสดุ\nงานทะเบียน\nงานศูนย์ข้อมูลสารสนเทศ\nงานวัดผลและประเมินผล\nแผนกวิชาการบัญชี\nแผนกวิชาการตลาด\nแผนกวิชาคอมพิวเตอร์ธุรกิจ\nแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล\nแผนกวิชาการจัดการสำนักงาน\nแผนกวิชาการท่องเที่ยว\nแผนกวิชาการโรงแรม\nแผนกวิชาสามัญสัมพันธ์', 'รายชื่อแผนก / งาน / ฝ่าย (บรรทัดละ 1 รายการ)'],
   ['ALLOW_GUEST_REPORT', 'TRUE', 'อนุญาตให้แจ้งปัญหาโดยไม่ต้องเข้าสู่ระบบ (TRUE/FALSE)'],
   ['NOTIFY_TELEGRAM', 'TRUE', 'เปิดการแจ้งเตือน Telegram (TRUE/FALSE)'],
   ['NOTIFY_GOOGLE_CHAT', 'TRUE', 'เปิดการแจ้งเตือน Google Chat (TRUE/FALSE)'],
-  ['ATTACHMENT_SHARING', 'ANYONE_WITH_LINK', 'สิทธิ์ไฟล์แนบ: ANYONE_WITH_LINK / DOMAIN_WITH_LINK / PRIVATE']
+  ['ATTACHMENT_SHARING', 'ANYONE_WITH_LINK', 'สิทธิ์ไฟล์แนบ: ANYONE_WITH_LINK / DOMAIN_WITH_LINK / PRIVATE'],
+  ['NOTIFY_REPORTER_EMAIL', 'TRUE', 'ส่งอีเมลแจ้งความคืบหน้าให้ผู้แจ้ง (TRUE/FALSE)']
 ];
 
-const EDITABLE_SETTINGS = ['ORG_NAME', 'ASSIGNEES', 'BUILDINGS', 'DEPARTMENTS', 'ALLOW_GUEST_REPORT', 'NOTIFY_TELEGRAM', 'NOTIFY_GOOGLE_CHAT', 'ATTACHMENT_SHARING'];
+/** ค่าเริ่มต้นเวอร์ชันแรก (แบบโรงเรียน) — ถ้าใน Sheet ยังเป็นค่าเหล่านี้ ระบบจะเปลี่ยนเป็นค่าของวิทยาลัยให้อัตโนมัติ */
+const LEGACY_DEFAULTS = {
+  ORG_NAME: 'โรงเรียน / องค์กรของคุณ',
+  DEPARTMENTS: 'ฝ่ายบริหารวิชาการ\nฝ่ายบริหารงานบุคคล\nฝ่ายบริหารงบประมาณ\nฝ่ายบริหารทั่วไป\nกลุ่มสาระการเรียนรู้ภาษาไทย\nกลุ่มสาระการเรียนรู้คณิตศาสตร์\nกลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี\nกลุ่มสาระการเรียนรู้สังคมศึกษาฯ\nกลุ่มสาระการเรียนรู้ภาษาต่างประเทศ\nกลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา\nกลุ่มสาระการเรียนรู้ศิลปะ\nกลุ่มสาระการเรียนรู้การงานอาชีพ'
+};
+
+const EDITABLE_SETTINGS = ['ORG_NAME', 'ASSIGNEES', 'BUILDINGS', 'DEPARTMENTS', 'ALLOW_GUEST_REPORT', 'NOTIFY_TELEGRAM', 'NOTIFY_GOOGLE_CHAT', 'NOTIFY_REPORTER_EMAIL', 'ATTACHMENT_SHARING'];
 const SECRET_KEYS = ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID', 'GOOGLE_CHAT_WEBHOOK_URL', 'DRIVE_FOLDER_ID'];
 
 const ALLOWED_MIME = /^(image\/(png|jpe?g|gif|webp|heic|heif|bmp)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation)|application\/vnd\.ms-(excel|powerpoint)|text\/plain|text\/csv)$/;
@@ -179,11 +186,11 @@ function initializeSystem(token) {
 /**
  * ข้อมูลเริ่มต้นเมื่อเปิดหน้าเว็บ (ค่าคงที่, การตั้งค่าสาธารณะ, ผู้ใช้ปัจจุบัน)
  */
-function getBootstrap(token) {
+function getBootstrap(token, noAutoLogin) {
   return safe_(function () {
     ensureSchema_(false);
     let sess = getSession_(token);
-    if (!sess) {
+    if (!sess && !noAutoLogin) {
       const email = activeEmail_();
       if (email) {
         const u = getUsersCached_().find(function (x) { return x.Email && x.Email.toLowerCase() === email && isActive_(x); });
@@ -925,7 +932,7 @@ function validateTicketInput_(d, partial) {
     Priority: ['priority', 30]
   };
   const labels = {
-    ReporterName: 'ชื่อ-นามสกุล', Department: 'กลุ่มสาระ/ฝ่าย/แผนก', Phone: 'เบอร์โทรศัพท์', Building: 'อาคาร',
+    ReporterName: 'ชื่อ-นามสกุล', Department: 'แผนก/งาน/ฝ่าย', Phone: 'เบอร์โทรศัพท์', Building: 'อาคาร',
     Room: 'ห้อง', ProblemType: 'ประเภทปัญหา', ProblemTitle: 'หัวข้อปัญหา', ProblemDetail: 'รายละเอียดปัญหา', Priority: 'ระดับความเร่งด่วน'
   };
   const out = {};
@@ -1393,7 +1400,7 @@ function exportCSV(data, token) {
     const rows = rowsInRange_(range.start, range.end).sort(function (a, b) { return String(a.CreatedAt) < String(b.CreatedAt) ? -1 : 1; });
     const cols = [
       ['TicketID', 'Ticket ID'], ['CreatedAt', 'วันที่แจ้ง'], ['ReporterID', 'รหัสผู้แจ้ง'], ['ReporterName', 'ผู้แจ้ง'],
-      ['Department', 'กลุ่มสาระ/ฝ่าย/แผนก'], ['Phone', 'เบอร์โทร'], ['Email', 'อีเมล'], ['Building', 'อาคาร'], ['Floor', 'ชั้น'],
+      ['Department', 'แผนก/งาน/ฝ่าย'], ['Phone', 'เบอร์โทร'], ['Email', 'อีเมล'], ['Building', 'อาคาร'], ['Floor', 'ชั้น'],
       ['Room', 'ห้อง'], ['InstallPoint', 'จุดติดตั้ง'], ['AssetID', 'หมายเลขครุภัณฑ์'], ['ProblemType', 'ประเภทปัญหา'],
       ['ProblemTitle', 'หัวข้อปัญหา'], ['ProblemDetail', 'รายละเอียด'], ['Priority', 'ความเร่งด่วน'], ['Status', 'สถานะ'],
       ['AssignedTo', 'ผู้รับผิดชอบ'], ['AssignedAt', 'วันที่มอบหมาย'], ['AcceptedAt', 'วันที่รับเรื่อง'], ['StartedAt', 'วันที่เริ่มดำเนินการ'],
@@ -1475,7 +1482,7 @@ function saveSettings(settings, token) {
       let v = settings[k];
       if (Array.isArray(v)) v = v.join('\n');
       v = str_(String(v == null ? '' : v).replace(/\r\n/g, '\n'), 5000);
-      if (['ALLOW_GUEST_REPORT', 'NOTIFY_TELEGRAM', 'NOTIFY_GOOGLE_CHAT'].indexOf(k) >= 0) v = /^(true|1|yes|on)$/i.test(v) ? 'TRUE' : 'FALSE';
+      if (['ALLOW_GUEST_REPORT', 'NOTIFY_TELEGRAM', 'NOTIFY_GOOGLE_CHAT', 'NOTIFY_REPORTER_EMAIL'].indexOf(k) >= 0) v = /^(true|1|yes|on)$/i.test(v) ? 'TRUE' : 'FALSE';
       if (k === 'ATTACHMENT_SHARING' && ['ANYONE_WITH_LINK', 'DOMAIN_WITH_LINK', 'PRIVATE'].indexOf(v) < 0) fail_('ค่าสิทธิ์ไฟล์แนบไม่ถูกต้อง');
       if (k === 'ORG_NAME' && !v) fail_('กรุณากรอกชื่อหน่วยงาน');
       if (k === 'ASSIGNEES' && !v) fail_('กรุณากำหนดรายชื่อผู้รับผิดชอบอย่างน้อย 1 รายการ');
@@ -1549,7 +1556,8 @@ function publicSettings_() {
     DEPARTMENTS: listSetting_('DEPARTMENTS'),
     ALLOW_GUEST_REPORT: String(s.ALLOW_GUEST_REPORT).toUpperCase() !== 'FALSE',
     NOTIFY_TELEGRAM: String(s.NOTIFY_TELEGRAM).toUpperCase() !== 'FALSE',
-    NOTIFY_GOOGLE_CHAT: String(s.NOTIFY_GOOGLE_CHAT).toUpperCase() !== 'FALSE'
+    NOTIFY_GOOGLE_CHAT: String(s.NOTIFY_GOOGLE_CHAT).toUpperCase() !== 'FALSE',
+    NOTIFY_REPORTER_EMAIL: String(s.NOTIFY_REPORTER_EMAIL).toUpperCase() !== 'FALSE'
   };
 }
 
@@ -1646,7 +1654,84 @@ function notifyEvent_(event, row, extra) {
   } finally {
     INTERNAL_CALL_ = false;
   }
+  try {
+    results.reporterEmail = sendReporterEmail_(event, row, extra || {});
+  } catch (e) {
+    console.error('sendReporterEmail_ error: ' + (e && e.message ? e.message : e));
+  }
   return results;
+}
+
+/** ส่งอีเมลแจ้งความคืบหน้าให้ผู้แจ้ง (ถ้าผู้แจ้งกรอกอีเมลไว้) */
+function sendReporterEmail_(event, r, x) {
+  if (String(getSettingsMap_().NOTIFY_REPORTER_EMAIL).toUpperCase() === 'FALSE') return { sent: false, message: 'ปิดการส่งอีเมล' };
+  if (!r.Email || !isEmail_(r.Email)) return { sent: false, message: 'ผู้แจ้งไม่ได้ระบุอีเมล' };
+  if (['NEW', 'URGENT', 'ACCEPT', 'ASSIGN', 'STATUS', 'RESOLVED', 'CLOSED'].indexOf(event) < 0 || x.escalated) return { sent: false, message: 'ไม่ต้องส่ง' };
+  if (MailApp.getRemainingDailyQuota() < 1) return { sent: false, message: 'โควตาอีเมลวันนี้หมดแล้ว' };
+
+  const e = escHtml_;
+  const org = getSettingsMap_().ORG_NAME || CONFIG.APP_NAME;
+  const url = webAppUrl_();
+  const link = url ? url + '?ticket=' + encodeURIComponent(r.TicketID) : '';
+  const st = STATUS_LIST.find(function (i) { return i.value === r.Status; }) || { color: '#4f46e5' };
+  const heads = {
+    NEW: ['ได้รับเรื่องแจ้งปัญหาของคุณแล้ว', 'ระบบได้บันทึกการแจ้งปัญหาของคุณเรียบร้อยแล้ว เจ้าหน้าที่ IT จะดำเนินการโดยเร็วที่สุด กรุณาเก็บหมายเลข Ticket ไว้สำหรับติดตามสถานะ'],
+    URGENT: ['ได้รับเรื่องแจ้งปัญหาด่วนของคุณแล้ว', 'ระบบได้แจ้งเตือนเจ้าหน้าที่ IT ทันที เนื่องจากเป็นปัญหาด่วนมาก กรุณาเก็บหมายเลข Ticket ไว้สำหรับติดตามสถานะ'],
+    ACCEPT: ['เจ้าหน้าที่รับเรื่องของคุณแล้ว', 'เจ้าหน้าที่ IT ได้รับเรื่องแจ้งปัญหาของคุณแล้ว และจะเข้าดำเนินการโดยเร็ว'],
+    ASSIGN: ['มอบหมายผู้รับผิดชอบแล้ว', 'งานของคุณได้รับการมอบหมายให้เจ้าหน้าที่ผู้รับผิดชอบแล้ว'],
+    STATUS: ['อัปเดตสถานะงานของคุณ', 'สถานะงานแจ้งปัญหาของคุณมีการเปลี่ยนแปลง'],
+    RESOLVED: ['แก้ไขปัญหาของคุณเรียบร้อยแล้ว ✅', 'เจ้าหน้าที่ได้แก้ไขปัญหาของคุณเรียบร้อยแล้ว หากยังพบปัญหาอยู่ กรุณาติดต่อเจ้าหน้าที่ IT หรือแจ้งปัญหาใหม่'],
+    CLOSED: ['ปิดงานเรียบร้อยแล้ว ✅', 'งานแจ้งปัญหาของคุณดำเนินการเสร็จสิ้นและปิดงานแล้ว ขอความกรุณาประเมินความพึงพอใจ เพื่อนำไปพัฒนาการให้บริการ']
+  };
+  const h = heads[event];
+  const rows = [
+    ['หมายเลข Ticket', r.TicketID],
+    ['ปัญหา', r.ProblemTitle],
+    ['สถานที่', [r.Room, r.Building].filter(Boolean).join(' • ')],
+    ['วันที่แจ้ง', thaiDT_(r.CreatedAt) + ' น.'],
+    ['สถานะปัจจุบัน', statusLabel_(r.Status)]
+  ];
+  if (r.AssignedTo) rows.push(['ผู้รับผิดชอบ', r.AssignedTo]);
+  if (x.note && event !== 'CLOSED') rows.push(['หมายเหตุจากเจ้าหน้าที่', x.note]);
+  if (event === 'CLOSED') {
+    rows.push(['วิธีการแก้ไข', r.Resolution]);
+    rows.push(['ผลการดำเนินงาน', r.Result]);
+  }
+  if (event === 'RESOLVED' || event === 'CLOSED') rows.push(['ระยะเวลาดำเนินการ', durationText_(minutesBetween_(r.CreatedAt, r.ResolvedAt || r.ClosedAt))]);
+
+  const html =
+    '<div style="font-family:Tahoma,Arial,sans-serif;max-width:560px;margin:auto;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden">' +
+    '<div style="background:linear-gradient(135deg,#2563eb,#7c3aed);background-color:#4f46e5;color:#fff;padding:18px 22px">' +
+    '<div style="font-size:13px;opacity:.85">' + e(org) + ' • IT Helpdesk</div>' +
+    '<div style="font-size:20px;font-weight:bold;margin-top:4px">' + e(h[0]) + '</div></div>' +
+    '<div style="padding:20px 22px;color:#0f172a;font-size:14px;line-height:1.6">' +
+    '<p style="margin:0 0 14px">เรียน คุณ' + e(r.ReporterName) + '</p>' +
+    '<p style="margin:0 0 16px">' + e(h[1]) + '</p>' +
+    '<table style="width:100%;border-collapse:collapse">' +
+    rows.map(function (x2) {
+      return '<tr><td style="padding:8px 0;border-bottom:1px dashed #e2e8f0;color:#64748b;width:40%;vertical-align:top">' + e(x2[0]) +
+        '</td><td style="padding:8px 0;border-bottom:1px dashed #e2e8f0;white-space:pre-wrap">' + e(x2[1] || '-') + '</td></tr>';
+    }).join('') +
+    '</table>' +
+    (link ? '<div style="text-align:center;margin:22px 0 6px"><a href="' + e(link) + '" style="background:' + st.color + ';background-color:#4f46e5;color:#fff;text-decoration:none;padding:12px 26px;border-radius:10px;font-weight:bold;display:inline-block">' +
+      (event === 'CLOSED' || event === 'RESOLVED' ? '⭐ ดูรายละเอียดและประเมินความพึงพอใจ' : '🔎 ติดตามสถานะงาน') + '</a></div>' : '') +
+    '</div><div style="background:#f8fafc;color:#94a3b8;font-size:12px;padding:12px 22px;text-align:center">อีเมลฉบับนี้ส่งอัตโนมัติจาก' + e(CONFIG.APP_NAME) + ' กรุณาอย่าตอบกลับ</div></div>';
+
+  const text = h[0] + '\n\n' + rows.map(function (x2) { return x2[0] + ': ' + (x2[1] || '-'); }).join('\n') + (link ? '\n\nติดตามสถานะ: ' + link : '');
+  MailApp.sendEmail({
+    to: r.Email,
+    subject: '[IT Helpdesk] ' + h[0].replace(' ✅', '') + ' — ' + r.TicketID,
+    body: text,
+    htmlBody: html,
+    name: 'IT Helpdesk ' + org
+  });
+  return { sent: true, message: 'ส่งอีเมลถึงผู้แจ้งแล้ว' };
+}
+
+function escHtml_(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
 }
 
 function buildMessage_(event, r, x, channel) {
@@ -1841,7 +1926,7 @@ function getSS_() {
 
 function ensureSchema_(force) {
   const cache = CacheService.getScriptCache();
-  if (!force && cache.get('schema_ok_v1')) return;
+  if (!force && cache.get('schema_ok_v2')) return;
   withLock_(function () {
     const ss = getSS_();
     Object.keys(SHEET_HEADERS).forEach(function (name) {
@@ -1873,8 +1958,26 @@ function ensureSchema_(force) {
       }
     });
     ensureDefaultAdmin_();
+    migrateLegacySettings_();
   });
-  cache.put('schema_ok_v1', '1', 21600);
+  cache.put('schema_ok_v2', '1', 21600);
+}
+
+/** เปลี่ยนค่าเริ่มต้นแบบโรงเรียน (เวอร์ชันแรก) เป็นแบบวิทยาลัย เฉพาะค่าที่ผู้ใช้ยังไม่ได้แก้ไข */
+function migrateLegacySettings_() {
+  const t = readTable_('Settings');
+  let changed = false;
+  Object.keys(LEGACY_DEFAULTS).forEach(function (k) {
+    const row = t.rows.find(function (r) { return r.Key === k; });
+    if (row && String(row.Value).replace(/\r\n/g, '\n').trim() === LEGACY_DEFAULTS[k].replace(/\\n/g, '\n').trim()) {
+      const d = DEFAULT_SETTINGS.find(function (x) { return x[0] === k; });
+      row.Value = d[1];
+      row.Description = d[2];
+      writeRow_('Settings', row, row._row);
+      changed = true;
+    }
+  });
+  if (changed) { _settings = null; CacheService.getScriptCache().remove('settings_v1'); }
 }
 
 function createSheet_(ss, name) {
