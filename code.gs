@@ -129,21 +129,21 @@ const SHEET_HEADERS = {
 };
 
 const DEFAULT_SETTINGS = [
-  ['ORG_NAME', 'วิทยาลัยของคุณ (แก้ไขได้ที่เมนูตั้งค่า)', 'ชื่อวิทยาลัยที่แสดงบนระบบ'],
+  ['ORG_NAME', 'วิทยาลัยเทคนิคสมุทรสาคร', 'ชื่อวิทยาลัยที่แสดงบนระบบ'],
   ['ASSIGNEES', 'IT Admin\nNetwork Admin\nComputer Technician\nเจ้าหน้าที่โสตฯ\nเจ้าหน้าที่ระบบสารสนเทศ', 'รายชื่อ/ตำแหน่งผู้รับผิดชอบงาน (บรรทัดละ 1 รายการ)'],
   ['BUILDINGS', 'อาคาร 1\nอาคาร 2\nอาคาร 3\nอาคารอเนกประสงค์\nอาคารสำนักงาน', 'รายชื่ออาคาร (บรรทัดละ 1 รายการ)'],
-  ['DEPARTMENTS', 'ฝ่ายบริหารทรัพยากร\nฝ่ายแผนงานและความร่วมมือ\nฝ่ายพัฒนากิจการนักเรียนนักศึกษา\nฝ่ายวิชาการ\nงานบริหารงานทั่วไป\nงานบุคลากร\nงานการเงิน\nงานบัญชี\nงานพัสดุ\nงานทะเบียน\nงานศูนย์ข้อมูลสารสนเทศ\nงานวัดผลและประเมินผล\nแผนกวิชาการบัญชี\nแผนกวิชาการตลาด\nแผนกวิชาคอมพิวเตอร์ธุรกิจ\nแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล\nแผนกวิชาการจัดการสำนักงาน\nแผนกวิชาการท่องเที่ยว\nแผนกวิชาการโรงแรม\nแผนกวิชาสามัญสัมพันธ์', 'รายชื่อแผนก / งาน / ฝ่าย (บรรทัดละ 1 รายการ)'],
+  ['DEPARTMENTS', 'ฝ่ายบริหารทรัพยากร\nฝ่ายแผนงานและความร่วมมือ\nฝ่ายพัฒนากิจการนักเรียนนักศึกษา\nฝ่ายวิชาการ\nงานบริหารงานทั่วไป\nงานบุคลากร\nงานการเงิน\nงานการบัญชี\nงานพัสดุ\nงานอาคารสถานที่\nงานทะเบียน\nงานศูนย์ข้อมูลสารสนเทศ\nงานวัดผลและประเมินผล\nงานวิทยบริการและห้องสมุด\nแผนกวิชาช่างยนต์\nแผนกวิชาช่างกลโรงงาน\nแผนกวิชาช่างเชื่อมโลหะ\nแผนกวิชาช่างไฟฟ้ากำลัง\nแผนกวิชาช่างอิเล็กทรอนิกส์\nแผนกวิชาช่างก่อสร้าง\nแผนกวิชาสถาปัตยกรรม\nแผนกวิชาเมคคาทรอนิกส์\nแผนกวิชาเทคโนโลยีสารสนเทศ\nแผนกวิชาการบัญชี\nแผนกวิชาการตลาด\nแผนกวิชาการเลขานุการ\nแผนกวิชาคอมพิวเตอร์ธุรกิจ\nแผนกวิชาสามัญสัมพันธ์', 'รายชื่อแผนก / งาน / ฝ่าย (บรรทัดละ 1 รายการ)'],
   ['ALLOW_GUEST_REPORT', 'TRUE', 'อนุญาตให้แจ้งปัญหาโดยไม่ต้องเข้าสู่ระบบ (TRUE/FALSE)'],
   ['NOTIFY_TELEGRAM', 'TRUE', 'เปิดการแจ้งเตือน Telegram (TRUE/FALSE)'],
   ['NOTIFY_GOOGLE_CHAT', 'TRUE', 'เปิดการแจ้งเตือน Google Chat (TRUE/FALSE)'],
-  ['ATTACHMENT_SHARING', 'ANYONE_WITH_LINK', 'สิทธิ์ไฟล์แนบ: ANYONE_WITH_LINK / DOMAIN_WITH_LINK / PRIVATE'],
+  ['ATTACHMENT_SHARING', 'DOMAIN_WITH_LINK', 'สิทธิ์ไฟล์แนบ: DOMAIN_WITH_LINK (แนะนำ) / ANYONE_WITH_LINK / PRIVATE'],
   ['NOTIFY_REPORTER_EMAIL', 'TRUE', 'ส่งอีเมลแจ้งความคืบหน้าให้ผู้แจ้ง (TRUE/FALSE)']
 ];
 
-/** ค่าเริ่มต้นเวอร์ชันแรก (แบบโรงเรียน) — ถ้าใน Sheet ยังเป็นค่าเหล่านี้ ระบบจะเปลี่ยนเป็นค่าของวิทยาลัยให้อัตโนมัติ */
+/** ค่าเริ่มต้นของเวอร์ชันก่อน ๆ — ถ้าใน Sheet ยังเป็นค่าเหล่านี้ (ผู้ใช้ยังไม่ได้แก้) ระบบจะเปลี่ยนเป็นค่าของวิทยาลัยเทคนิคสมุทรสาครให้อัตโนมัติ */
 const LEGACY_DEFAULTS = {
-  ORG_NAME: 'โรงเรียน / องค์กรของคุณ',
-  DEPARTMENTS: 'ฝ่ายบริหารวิชาการ\nฝ่ายบริหารงานบุคคล\nฝ่ายบริหารงบประมาณ\nฝ่ายบริหารทั่วไป\nกลุ่มสาระการเรียนรู้ภาษาไทย\nกลุ่มสาระการเรียนรู้คณิตศาสตร์\nกลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี\nกลุ่มสาระการเรียนรู้สังคมศึกษาฯ\nกลุ่มสาระการเรียนรู้ภาษาต่างประเทศ\nกลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา\nกลุ่มสาระการเรียนรู้ศิลปะ\nกลุ่มสาระการเรียนรู้การงานอาชีพ'
+  ORG_NAME: ['โรงเรียน / องค์กรของคุณ', 'วิทยาลัยของคุณ (แก้ไขได้ที่เมนูตั้งค่า)'],
+  DEPARTMENTS: ['ฝ่ายบริหารวิชาการ\nฝ่ายบริหารงานบุคคล\nฝ่ายบริหารงบประมาณ\nฝ่ายบริหารทั่วไป\nกลุ่มสาระการเรียนรู้ภาษาไทย\nกลุ่มสาระการเรียนรู้คณิตศาสตร์\nกลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี\nกลุ่มสาระการเรียนรู้สังคมศึกษาฯ\nกลุ่มสาระการเรียนรู้ภาษาต่างประเทศ\nกลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา\nกลุ่มสาระการเรียนรู้ศิลปะ\nกลุ่มสาระการเรียนรู้การงานอาชีพ', 'ฝ่ายบริหารทรัพยากร\nฝ่ายแผนงานและความร่วมมือ\nฝ่ายพัฒนากิจการนักเรียนนักศึกษา\nฝ่ายวิชาการ\nงานบริหารงานทั่วไป\nงานบุคลากร\nงานการเงิน\nงานบัญชี\nงานพัสดุ\nงานทะเบียน\nงานศูนย์ข้อมูลสารสนเทศ\nงานวัดผลและประเมินผล\nแผนกวิชาการบัญชี\nแผนกวิชาการตลาด\nแผนกวิชาคอมพิวเตอร์ธุรกิจ\nแผนกวิชาเทคโนโลยีธุรกิจดิจิทัล\nแผนกวิชาการจัดการสำนักงาน\nแผนกวิชาการท่องเที่ยว\nแผนกวิชาการโรงแรม\nแผนกวิชาสามัญสัมพันธ์']
 };
 
 const EDITABLE_SETTINGS = ['ORG_NAME', 'ASSIGNEES', 'BUILDINGS', 'DEPARTMENTS', 'ALLOW_GUEST_REPORT', 'NOTIFY_TELEGRAM', 'NOTIFY_GOOGLE_CHAT', 'NOTIFY_REPORTER_EMAIL', 'ATTACHMENT_SHARING'];
@@ -239,7 +239,9 @@ function login(identifier, password) {
     const u = readTable_('Users').rows.find(function (x) {
       return String(x.UserID).toLowerCase() === id || (x.Email && x.Email.toLowerCase() === id);
     });
-    if (!u || !isActive_(u) || !verifyPassword_(pw, u.PasswordHash)) {
+    // บัญชีที่มีอีเมล ห้ามใช้รหัสผ่านเริ่มต้นเด็ดขาด (ต้องเข้าด้วย Google หรือรหัสผ่านที่ตั้งเอง)
+    const blockedDefault = u && u.Email && pw === CONFIG.DEFAULT_ADMIN_PASSWORD;
+    if (!u || !isActive_(u) || blockedDefault || !verifyPassword_(pw, u.PasswordHash)) {
       cache.put(key, String(fails + 1), 600);
       fail_('รหัสผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'AUTH_FAIL');
     }
@@ -282,7 +284,9 @@ function changePassword(oldPassword, newPassword, token) {
       u.PasswordHash = hashPassword_(np);
       writeRow_('Users', u, u._row);
     });
+    clearUsersCache_();
     s.mustChange = false;
+    s.hasPassword = true;
     saveSession_(s.token, s);
     return publicUser_(s);
   });
@@ -357,7 +361,8 @@ function createSession_(user, extra) {
   const sess = {
     userId: user.UserID, name: user.Name || user.UserID, email: (user.Email || '').toLowerCase(),
     role: ROLES.indexOf(user.Role) >= 0 ? user.Role : 'User', department: user.Department || '',
-    phone: user.Phone || '', mustChange: !!extra.mustChange, guest: !!extra.guest
+    phone: user.Phone || '', mustChange: !!extra.mustChange, guest: !!extra.guest,
+    hasPassword: !!(user.PasswordHash || user.HasPassword)
   };
   saveSession_(token, sess);
   sess.token = token;
@@ -385,6 +390,7 @@ function getSession_(token) {
     s.email = (u.Email || '').toLowerCase();
     s.department = u.Department || '';
     s.phone = u.Phone || '';
+    s.hasPassword = !!u.HasPassword;
   }
   saveSession_(token, s); // sliding expiration
   s.token = token;
@@ -412,7 +418,7 @@ function isActive_(u) { return ['active', 'ใช้งาน', 'true'].indexOf(
 function publicUser_(s) {
   return {
     userId: s.userId, name: s.name, email: s.email, role: s.role, department: s.department,
-    phone: s.phone, guest: !!s.guest, mustChange: !!s.mustChange,
+    phone: s.phone, guest: !!s.guest, mustChange: !!s.mustChange, hasPassword: !!s.hasPassword,
     isStaff: isStaffRole_(s.role), isAdmin: s.role === 'Admin'
   };
 }
@@ -420,20 +426,20 @@ function publicUser_(s) {
 function getUsersCached_() {
   if (_usersCache) return _usersCache;
   const cache = CacheService.getScriptCache();
-  const raw = cache.get('users_v1');
+  const raw = cache.get('users_v2');
   if (raw) {
     try { _usersCache = JSON.parse(raw); return _usersCache; } catch (e) { /* rebuild */ }
   }
   _usersCache = readTable_('Users').rows.map(function (u) {
-    return { UserID: u.UserID, Name: u.Name, Department: u.Department, Email: u.Email, Phone: u.Phone, Role: u.Role, Status: u.Status };
+    return { UserID: u.UserID, Name: u.Name, Department: u.Department, Email: u.Email, Phone: u.Phone, Role: u.Role, Status: u.Status, HasPassword: !!u.PasswordHash };
   });
-  try { cache.put('users_v1', JSON.stringify(_usersCache), 300); } catch (e) { /* too large: skip cache */ }
+  try { cache.put('users_v2', JSON.stringify(_usersCache), 300); } catch (e) { /* too large: skip cache */ }
   return _usersCache;
 }
 
 function clearUsersCache_() {
   _usersCache = null;
-  CacheService.getScriptCache().remove('users_v1');
+  CacheService.getScriptCache().remove('users_v2');
 }
 
 function activeEmail_() {
@@ -469,10 +475,58 @@ function ensureDefaultAdmin_() {
   admin.Phone = admin.Phone || '';
   admin.Role = 'Admin';
   admin.Status = 'Active';
-  admin.PasswordHash = hashPassword_(CONFIG.DEFAULT_ADMIN_PASSWORD);
+  // ความปลอดภัย: ถ้ามีอีเมล ให้เข้าสู่ระบบด้วยบัญชี Google เท่านั้น (ไม่มีรหัสผ่านเริ่มต้นที่ใครก็เดาได้)
+  // ใช้รหัสผ่านเริ่มต้นเฉพาะกรณีไม่ทราบอีเมลเจ้าของ และระบบจะบังคับให้เปลี่ยนทันทีที่เข้าสู่ระบบ
+  admin.PasswordHash = admin.Email ? '' : hashPassword_(CONFIG.DEFAULT_ADMIN_PASSWORD);
   admin.CreatedAt = admin.CreatedAt || now_();
   writeRow_('Users', admin, existing ? existing._row : null);
   clearUsersCache_();
+}
+
+/**
+ * ปิดช่องโหว่: บัญชีที่มีอีเมล (เข้าสู่ระบบด้วย Google ได้) แต่ยังใช้รหัสผ่านเริ่มต้นอยู่
+ * จะถูกลบรหัสผ่านทิ้ง เพื่อไม่ให้ผู้อื่นใช้รหัสผ่านเริ่มต้นเข้าสู่ระบบแทนได้
+ */
+function removeDefaultPasswords_() {
+  let changed = false;
+  readTable_('Users').rows.forEach(function (u) {
+    // saveUser/changePassword ไม่ยอมให้ตั้งรหัสผ่านเริ่มต้น จึงตรวจเฉพาะบัญชี admin (เร็ว)
+    if (String(u.UserID).toLowerCase() === CONFIG.DEFAULT_ADMIN_ID && u.Email && u.PasswordHash && verifyPassword_(CONFIG.DEFAULT_ADMIN_PASSWORD, u.PasswordHash)) {
+      u.PasswordHash = '';
+      writeRow_('Users', u, u._row);
+      changed = true;
+    }
+  });
+  if (changed) clearUsersCache_();
+}
+
+/**
+ * กู้คืนการเข้าสู่ระบบของผู้ดูแล: เลือกฟังก์ชันนี้ใน Apps Script แล้วกด ▶ เรียกใช้
+ * จะสร้างรหัสผ่านชั่วคราวให้บัญชี admin และแสดงใน "บันทึกการดำเนินการ"
+ * ใช้ได้เฉพาะเจ้าของสคริปต์เท่านั้น (ผู้ใช้อื่นเรียกจากหน้าเว็บไม่ได้)
+ */
+function resetAdminPassword() {
+  return safe_(function () {
+    let owner = '';
+    try { owner = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (e) { owner = ''; }
+    const me = activeEmail_();
+    if (!owner || me !== owner) fail_('ฟังก์ชันนี้ใช้ได้เฉพาะเจ้าของสคริปต์ใน Apps Script Editor เท่านั้น', 'FORBIDDEN');
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let pw = '';
+    for (let i = 0; i < 10; i++) pw += chars.charAt(Math.floor(Math.random() * chars.length));
+    pw += String(Math.floor(Math.random() * 10));
+    withLock_(function () {
+      const u = readTable_('Users').rows.find(function (x) { return String(x.UserID).toLowerCase() === CONFIG.DEFAULT_ADMIN_ID; });
+      if (!u) fail_('ไม่พบบัญชี admin', 'NOT_FOUND');
+      u.PasswordHash = hashPassword_(pw);
+      u.Role = 'Admin';
+      u.Status = 'Active';
+      writeRow_('Users', u, u._row);
+    });
+    clearUsersCache_();
+    Logger.log('รหัสผ่านชั่วคราวของ admin: ' + pw + ' (กรุณาเข้าสู่ระบบแล้วเปลี่ยนรหัสผ่านทันที)');
+    return { userId: CONFIG.DEFAULT_ADMIN_ID, temporaryPassword: pw };
+  });
 }
 
 // =====================================================================================
@@ -1161,7 +1215,9 @@ function getWorkLogs_(id) {
 
 function buildTimeline_(id, access) {
   const items = readTable_('History').rows.filter(function (h) { return h.TicketID === id; }).map(function (h, i) {
-    return { kind: 'history', seq: i, time: h.DateTime, timeText: thaiDT_(h.DateTime), action: h.Action, from: h.FromStatus, to: h.ToStatus, by: h.By, note: h.Note };
+    // ผู้ที่ไม่ใช่ผู้แจ้ง/เจ้าหน้าที่ เห็นเฉพาะขั้นตอนและเวลา ไม่เห็นหมายเหตุภายใน (Ticket ID เดาได้ตามลำดับ)
+    const note = access === 'public' && h.Action !== 'แจ้งปัญหา' ? '' : h.Note;
+    return { kind: 'history', seq: i, time: h.DateTime, timeText: thaiDT_(h.DateTime), action: h.Action, from: h.FromStatus, to: h.ToStatus, by: h.By, note: note };
   });
   if (access !== 'public') {
     getWorkLogs_(id).forEach(function (l, i) {
@@ -1638,21 +1694,35 @@ function sendGoogleChatNotification(data) {
   });
 }
 
+/** ส่ง Telegram และ Google Chat พร้อมกัน (fetchAll) เพื่อลดเวลารอของผู้ใช้ */
 function notifyEvent_(event, row, extra) {
   const results = {};
   try {
     const s = getSettingsMap_();
-    INTERNAL_CALL_ = true;
-    if (String(s.NOTIFY_TELEGRAM).toUpperCase() !== 'FALSE') {
-      results.telegram = unwrap_(sendTelegramNotification({ text: buildMessage_(event, row, extra || {}, 'telegram') }));
+    const jobs = [];
+    const botToken = cfg_('TELEGRAM_BOT_TOKEN'), chatId = cfg_('TELEGRAM_CHAT_ID'), hook = cfg_('GOOGLE_CHAT_WEBHOOK_URL');
+    if (String(s.NOTIFY_TELEGRAM).toUpperCase() !== 'FALSE' && botToken && chatId) {
+      jobs.push({ key: 'telegram', req: {
+        url: 'https://api.telegram.org/bot' + botToken + '/sendMessage', method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+        payload: JSON.stringify({ chat_id: chatId, text: str_(buildMessage_(event, row, extra || {}, 'telegram'), 4000), disable_web_page_preview: true })
+      } });
     }
-    if (String(s.NOTIFY_GOOGLE_CHAT).toUpperCase() !== 'FALSE') {
-      results.googleChat = unwrap_(sendGoogleChatNotification({ text: buildMessage_(event, row, extra || {}, 'chat') }));
+    if (String(s.NOTIFY_GOOGLE_CHAT).toUpperCase() !== 'FALSE' && hook) {
+      jobs.push({ key: 'googleChat', req: {
+        url: hook, method: 'post', contentType: 'application/json; charset=UTF-8', muteHttpExceptions: true,
+        payload: JSON.stringify({ text: str_(buildMessage_(event, row, extra || {}, 'chat'), 4000) })
+      } });
+    }
+    if (jobs.length) {
+      const responses = UrlFetchApp.fetchAll(jobs.map(function (j) { return j.req; }));
+      responses.forEach(function (res, i) {
+        const code = res.getResponseCode();
+        results[jobs[i].key] = { sent: code === 200, code: code };
+        if (code !== 200) console.error(jobs[i].key + ' notify failed: HTTP ' + code);
+      });
     }
   } catch (e) {
-    console.error('notifyEvent_ error: ' + (e && e.message ? e.message : e));
-  } finally {
-    INTERNAL_CALL_ = false;
+    console.error('notifyEvent_ error: ' + String(e && e.message ? e.message : e).split(cfg_('TELEGRAM_BOT_TOKEN') || '\u0000').join('***'));
   }
   try {
     results.reporterEmail = sendReporterEmail_(event, row, extra || {});
@@ -1667,6 +1737,13 @@ function sendReporterEmail_(event, r, x) {
   if (String(getSettingsMap_().NOTIFY_REPORTER_EMAIL).toUpperCase() === 'FALSE') return { sent: false, message: 'ปิดการส่งอีเมล' };
   if (!r.Email || !isEmail_(r.Email)) return { sent: false, message: 'ผู้แจ้งไม่ได้ระบุอีเมล' };
   if (['NEW', 'URGENT', 'ACCEPT', 'ASSIGN', 'STATUS', 'RESOLVED', 'CLOSED'].indexOf(event) < 0 || x.escalated) return { sent: false, message: 'ไม่ต้องส่ง' };
+  // กันการใช้ระบบส่งอีเมลไปยังที่อยู่ภายนอก: ส่งเฉพาะอีเมล Google ที่ยืนยันแล้วของผู้แจ้ง หรืออีเมลโดเมนเดียวกับวิทยาลัย
+  const to = String(r.Email).toLowerCase();
+  let ownerDomain = '';
+  try { ownerDomain = String(Session.getEffectiveUser().getEmail() || '').toLowerCase().split('@')[1] || ''; } catch (e) { ownerDomain = ''; }
+  const verified = r.CreatedBy && String(r.CreatedBy).toLowerCase() === to;
+  const sameDomain = ownerDomain && ownerDomain !== 'gmail.com' && to.split('@')[1] === ownerDomain;
+  if (!verified && !sameDomain) return { sent: false, message: 'ไม่ส่งอีเมลไปยังที่อยู่ภายนอกวิทยาลัย' };
   if (MailApp.getRemainingDailyQuota() < 1) return { sent: false, message: 'โควตาอีเมลวันนี้หมดแล้ว' };
 
   const e = escHtml_;
@@ -1719,7 +1796,7 @@ function sendReporterEmail_(event, r, x) {
 
   const text = h[0] + '\n\n' + rows.map(function (x2) { return x2[0] + ': ' + (x2[1] || '-'); }).join('\n') + (link ? '\n\nติดตามสถานะ: ' + link : '');
   MailApp.sendEmail({
-    to: r.Email,
+    to: to,
     subject: '[IT Helpdesk] ' + h[0].replace(' ✅', '') + ' — ' + r.TicketID,
     body: text,
     htmlBody: html,
@@ -1892,13 +1969,16 @@ function saveFileToDrive_(f, ticketId, idx) {
   const blob = Utilities.newBlob(Utilities.base64Decode(f.data), f.mimeType, ticketId + '_' + idx + '_' + f.name);
   const file = getDriveFolder_().createFile(blob);
   file.setDescription('ไฟล์แนบ Ticket ' + ticketId);
-  const mode = String(getSettingsMap_().ATTACHMENT_SHARING || 'ANYONE_WITH_LINK').toUpperCase();
-  if (mode !== 'PRIVATE') {
-    try {
-      file.setSharing(mode === 'DOMAIN_WITH_LINK' ? DriveApp.Access.DOMAIN_WITH_LINK : DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    } catch (e) {
-      try { file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW); } catch (e2) { /* ตามนโยบายองค์กร */ }
+  const mode = String(getSettingsMap_().ATTACHMENT_SHARING || 'DOMAIN_WITH_LINK').toUpperCase();
+  if (mode === 'ANYONE_WITH_LINK') {
+    try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }
+    catch (e) {
+      // องค์กรไม่อนุญาตแชร์สาธารณะ → ลดเหลือเฉพาะในองค์กร
+      try { file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW); } catch (e2) { /* คงเป็นไฟล์ส่วนตัว */ }
     }
+  } else if (mode === 'DOMAIN_WITH_LINK') {
+    // ถ้าไม่ใช่บัญชี Google Workspace จะตั้งค่าไม่ได้ ไฟล์จะคงเป็นส่วนตัว (ไม่เปิดเป็นสาธารณะโดยอัตโนมัติ)
+    try { file.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) { /* คงเป็นไฟล์ส่วนตัว */ }
   }
   return { id: file.getId(), url: 'https://drive.google.com/file/d/' + file.getId() + '/view', name: file.getName() };
 }
@@ -1926,7 +2006,7 @@ function getSS_() {
 
 function ensureSchema_(force) {
   const cache = CacheService.getScriptCache();
-  if (!force && cache.get('schema_ok_v2')) return;
+  if (!force && cache.get('schema_ok_v3')) return;
   withLock_(function () {
     const ss = getSS_();
     Object.keys(SHEET_HEADERS).forEach(function (name) {
@@ -1958,9 +2038,10 @@ function ensureSchema_(force) {
       }
     });
     ensureDefaultAdmin_();
+    removeDefaultPasswords_();
     migrateLegacySettings_();
   });
-  cache.put('schema_ok_v2', '1', 21600);
+  cache.put('schema_ok_v3', '1', 21600);
 }
 
 /** เปลี่ยนค่าเริ่มต้นแบบโรงเรียน (เวอร์ชันแรก) เป็นแบบวิทยาลัย เฉพาะค่าที่ผู้ใช้ยังไม่ได้แก้ไข */
@@ -1969,7 +2050,8 @@ function migrateLegacySettings_() {
   let changed = false;
   Object.keys(LEGACY_DEFAULTS).forEach(function (k) {
     const row = t.rows.find(function (r) { return r.Key === k; });
-    if (row && String(row.Value).replace(/\r\n/g, '\n').trim() === LEGACY_DEFAULTS[k].replace(/\\n/g, '\n').trim()) {
+    const cur = row ? String(row.Value).replace(/\r\n/g, '\n').trim() : null;
+    if (row && LEGACY_DEFAULTS[k].some(function (v) { return v.trim() === cur; })) {
       const d = DEFAULT_SETTINGS.find(function (x) { return x[0] === k; });
       row.Value = d[1];
       row.Description = d[2];
@@ -2141,7 +2223,7 @@ function csvCell_(v) {
   return '"' + s.replace(/"/g, '""') + '"';
 }
 
-function isEmail_(s) { return /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]{2,}$/.test(String(s)); }
+function isEmail_(s) { return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(String(s)); }
 
 function parseCost_(v) {
   if (v === '' || v == null) return 0;

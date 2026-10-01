@@ -7,7 +7,7 @@
   <title>IT Helpdesk — ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <style>
@@ -32,7 +32,7 @@
     * { -webkit-tap-highlight-color: transparent; }
     html, body { min-height: 100%; }
     body {
-      font-family: 'Prompt', 'Sarabun', system-ui, sans-serif;
+      font-family: 'Prompt', system-ui, sans-serif;
       color: var(--text);
       background:
         radial-gradient(1200px 600px at 100% -10%, rgba(124,58,237,.12), transparent 60%),
@@ -853,8 +853,8 @@
               </div>
               <label class="form-label mt-3" for="s_sharing">สิทธิ์การเข้าถึงไฟล์แนบ</label>
               <select class="form-select" id="s_sharing">
-                <option value="ANYONE_WITH_LINK">ทุกคนที่มีลิงก์ดูได้</option>
-                <option value="DOMAIN_WITH_LINK">เฉพาะผู้ใช้ในองค์กร (Google Workspace)</option>
+                <option value="DOMAIN_WITH_LINK">เฉพาะบุคลากรในวิทยาลัย (แนะนำ)</option>
+                <option value="ANYONE_WITH_LINK">ทุกคนที่มีลิงก์ดูได้ (ไม่แนะนำ)</option>
                 <option value="PRIVATE">ส่วนตัว (เฉพาะเจ้าของสคริปต์)</option>
               </select>
               <div class="text-end mt-3"><button class="btn btn-grad" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i> บันทึกการตั้งค่า</button></div>
@@ -1029,7 +1029,7 @@ function hideLoading() {
   if (!A.loading) $('#loadingOverlay').classList.remove('show');
 }
 const Toast = () => Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2600, timerProgressBar: true });
-function toast(icon, title) { Toast().fire({ icon, title }); }
+function toast(icon, title) { Toast().fire({ icon, title: esc(title) }); } // Swal แสดง title เป็น HTML จึงต้อง escape
 
 function handleError(err, title) {
   console.error(err);
@@ -1085,6 +1085,8 @@ async function init() {
   A.token = store.get('ithd_token', null);
   showLoading('กำลังเชื่อมต่อระบบ...');
   try {
+    // โหลด Dashboard พร้อมกับข้อมูลเริ่มต้น (ขนานกัน) เพื่อให้หน้าแรกแสดงเร็วขึ้น
+    A.dashPrefetch = api('getDashboardData', null).catch(() => null);
     const b = await api('getBootstrap', A.token, !!store.get('ithd_no_auto', false));
     A.meta = b.meta;
     A.settings = b.settings;
@@ -1210,7 +1212,7 @@ async function showLoginDialog(nextPage) {
       const id = $('#swId').value.trim(), pw = $('#swPw').value;
       if (!id || !pw) { Swal.showValidationMessage('กรุณากรอกรหัสผู้ใช้และรหัสผ่าน'); return false; }
       try { return await api('login', id, pw); }
-      catch (e) { Swal.showValidationMessage(e.message); return false; }
+      catch (e) { Swal.showValidationMessage(esc(e.message)); return false; }
     }
   });
   if (res.isConfirmed && res.value) afterLogin(res.value, nextPage);
@@ -1241,11 +1243,12 @@ function afterLogin(r, nextPage) {
 }
 
 async function promptChangePassword(force) {
+  const needOld = !(A.user && A.user.hasPassword === false);
   const res = await Swal.fire({
-    title: force ? 'กรุณาเปลี่ยนรหัสผ่าน' : 'เปลี่ยนรหัสผ่าน',
+    title: force ? 'กรุณาเปลี่ยนรหัสผ่าน' : (needOld ? 'เปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่าน'),
     html: `${force ? '<div class="swal-note mb-2">คุณกำลังใช้รหัสผ่านเริ่มต้น เพื่อความปลอดภัยกรุณาตั้งรหัสผ่านใหม่ก่อนใช้งาน</div>' : ''}
       <div class="swal-form">
-      <label for="cpOld">รหัสผ่านเดิม</label><input id="cpOld" type="password" class="form-control" autocomplete="current-password">
+      ${needOld ? '<label for="cpOld">รหัสผ่านเดิม</label><input id="cpOld" type="password" class="form-control" autocomplete="current-password">' : '<div class="small text-muted text-start">บัญชีนี้เข้าสู่ระบบด้วย Google — ตั้งรหัสผ่านไว้ใช้เข้าสู่ระบบจากเครื่องอื่นได้ (ไม่บังคับ)</div>'}
       <label for="cpNew">รหัสผ่านใหม่ (อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข)</label><input id="cpNew" type="password" class="form-control" autocomplete="new-password">
       <label for="cpNew2">ยืนยันรหัสผ่านใหม่</label><input id="cpNew2" type="password" class="form-control" autocomplete="new-password"></div>`,
     showCancelButton: !force, confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก',
@@ -1253,12 +1256,12 @@ async function promptChangePassword(force) {
     footer: force ? '<a id="cpLogout" class="text-decoration-none">ออกจากระบบ</a>' : '',
     didOpen: () => { const l = $('#cpLogout'); if (l) l.onclick = () => { Swal.close(); doLogout(); }; },
     preConfirm: async () => {
-      const o = $('#cpOld').value, n = $('#cpNew').value, n2 = $('#cpNew2').value;
-      if (!o || !n) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
+      const o = needOld ? $('#cpOld').value : '', n = $('#cpNew').value, n2 = $('#cpNew2').value;
+      if ((needOld && !o) || !n) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ'); return false; }
       if (n !== n2) { Swal.showValidationMessage('รหัสผ่านใหม่ไม่ตรงกัน'); return false; }
       if (n.length < 8 || !/[A-Za-z]/.test(n) || !/\d/.test(n)) { Swal.showValidationMessage('รหัสผ่านต้องมีอย่างน้อย 8 ตัว และมีทั้งตัวอักษรและตัวเลข'); return false; }
       try { return await api('changePassword', o, n, A.token); }
-      catch (e) { Swal.showValidationMessage(e.message); return false; }
+      catch (e) { Swal.showValidationMessage(esc(e.message)); return false; }
     }
   });
   if (res.isConfirmed && res.value) {
@@ -1482,7 +1485,9 @@ function lineChart(id, trend) {
 async function loadDashboard(silent) {
   if (!silent && !$('#dashCards').children.length) $('#dashCards').innerHTML = loaderHtml('กำลังโหลด Dashboard...');
   try {
-    const d = await api('getDashboardData', A.token);
+    let d = null;
+    if (A.dashPrefetch) { d = await A.dashPrefetch; A.dashPrefetch = null; }
+    if (!d) d = await api('getDashboardData', A.token);
     renderDashboard(d);
   } catch (e) {
     if (!silent) handleError(e);
@@ -2252,8 +2257,8 @@ async function runAction(btn, fn, args, successMsg) {
   try {
     await api(fn, ...args);
     toast('success', successMsg);
-    await reloadModal();
     if (A.page === 'work') loadTickets(true);
+    await reloadModal();
     return true;
   } catch (e) {
     handleError(e);
@@ -2441,7 +2446,7 @@ function renderSettings() {
         <div class="item"><div class="k">แผนก</div><div class="v">${esc(u.department || '-')}</div></div>
       </div>
       <div class="d-flex flex-wrap gap-2">
-        ${u.guest ? '' : '<button class="btn btn-soft" type="button" id="btnChangePw"><i class="fa-solid fa-key me-1"></i> เปลี่ยนรหัสผ่าน</button>'}
+        ${u.guest ? '' : `<button class="btn btn-soft" type="button" id="btnChangePw"><i class="fa-solid fa-key me-1"></i> ${u.hasPassword ? 'เปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่าน'}</button>`}
         <button class="btn btn-outline-danger" type="button" id="btnLogout"><i class="fa-solid fa-right-from-bracket me-1"></i> ออกจากระบบ</button>
       </div>`;
     const cp = $('#btnChangePw'); if (cp) cp.onclick = () => promptChangePassword(false);
@@ -2468,7 +2473,7 @@ async function loadAdminSettings() {
     $('#s_tg').checked = s.settings.NOTIFY_TELEGRAM;
     $('#s_gc').checked = s.settings.NOTIFY_GOOGLE_CHAT;
     $('#s_mail').checked = s.settings.NOTIFY_REPORTER_EMAIL;
-    $('#s_sharing').value = raw.ATTACHMENT_SHARING || 'ANYONE_WITH_LINK';
+    $('#s_sharing').value = raw.ATTACHMENT_SHARING || 'DOMAIN_WITH_LINK';
     const sys = s.system || {};
     const st = (ok, label, extra) => `<div class="col-md-4"><div class="set-status"><i class="fa-solid ${ok ? 'fa-circle-check ok' : 'fa-circle-xmark no'}"></i><div><div class="fw-medium small">${esc(label)}</div><div class="small text-muted">${ok ? 'ตั้งค่าแล้ว' : 'ยังไม่ได้ตั้งค่า'}${extra ? ' • ' + esc(extra) : ''}</div></div></div></div>`;
     $('#secretStatus').innerHTML = st(sys.telegramConfigured, 'Telegram Bot', sys.telegramChatIdMasked) + st(sys.googleChatConfigured, 'Google Chat Webhook') + st(sys.driveFolderConfigured, 'Drive Folder', sys.driveFolderConfigured ? '' : 'ใช้โฟลเดอร์อัตโนมัติ');
@@ -2522,7 +2527,7 @@ async function editUser(u) {
       const data = { isNew, userId: $('#uId').value.trim(), name: $('#uName').value.trim(), email: $('#uEmail').value.trim(), phone: $('#uPhone').value.trim(), department: $('#uDept').value.trim(), role: $('#uRole').value, status: $('#uStatus').value, password: $('#uPw').value };
       if (!data.userId || !data.name) { Swal.showValidationMessage('กรุณากรอกรหัสผู้ใช้และชื่อ'); return false; }
       try { return await api('saveUser', data, A.token); }
-      catch (e) { Swal.showValidationMessage(e.message); return false; }
+      catch (e) { Swal.showValidationMessage(esc(e.message)); return false; }
     }
   });
   if (res.isConfirmed) { toast('success', 'บันทึกผู้ใช้แล้ว'); loadAdminSettings(); }
